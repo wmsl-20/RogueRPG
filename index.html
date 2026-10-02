@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta name="theme-color" content="#05070d">
+	<title>RPG</title>
+	<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+	<link rel="stylesheet" href="./rprstyle.css">
+</head>
+<body>
+	<div class="shell">
+		<main>
+			<div class="topbar">
+				<div class="menu-container" id="game-menu-container">
+					<button class="menu-toggle" id="menu-toggle" type="button" aria-label="Abrir menu" aria-expanded="false" aria-controls="game-menu">
+						<span></span>
+						<span></span>
+						<span></span>
+					</button>
+					<div class="menu-panel" id="game-menu" hidden>
+						<button class="menu-item" id="reset-save-button" type="button">Resetar Save</button>
+					</div>
+				</div>
+			</div>
+
+			<!-- ============================== -->
+<!-- SELEÇÃO DE CLASSE -->
+<!-- ============================== -->
+
+<section id="class-selection" hidden>
+    <div class="heading">
+        <h1>Escolha sua classe</h1>
+    </div>
+
+    <div class="class-options">
+
+        <button type="button" class="class-button" data-class="guerreiro">
+            <h2>⚔️ Guerreiro</h2>
+            <p>Mais vida e defesa.</p>
+        </button>
+
+        <button type="button" class="class-button" data-class="arqueiro">
+            <h2>🏹 Arqueiro</h2>
+            <p>Mais velocidade e chance de crítico.</p>
+        </button>
+
+        <button type="button" class="class-button" data-class="mago">
+            <h2>🔮 Mago</h2>
+            <p>Mais dano e mais curas.</p>
+        </button>
+
+    </div>
+</section>
+
+<section id="character-creation" hidden>
+	<div class="heading">
+		<h1>Crie seu personagem</h1>
+	</div>
+
+	<form class="character-form" id="character-form">
+		<label for="character-name">Nome do personagem</label>
+		<input id="character-name" name="nome" type="text" maxlength="24" autocomplete="nickname" required>
+
+		<label for="character-gender">Gênero</label>
+		<select id="character-gender" name="genero" required>
+			<option value="masculino" selected>Masculino</option>
+			<option value="feminino">Feminino</option>
+		</select>
+
+		<button class="action primary" type="submit">Começar aventura</button>
+	</form>
+</section>
+
+<div id="game-content" hidden>
+    <div class="heading">
+        <h1>Combate</h1>
+    </div>
+
+    <div class="game-grid">
+		<section class="arena" aria-label="Arena de combate">
+			<div class="arena-head"><span class="section-label">BATALHA ATUAL</span><span class="section-label">INIMIGO ALEATÓRIO</span></div>
+			<div class="enemy-stage">
+				<div class="enemy-crest" aria-hidden="true"></div>
+				<div class="creature" id="enemy-art" aria-hidden="true">◉</div>
+				<h2 id="enemy-name">Inimigo</h2>
+				<span class="level" id="enemy-level">NÍVEL 2</span>
+				<div class="enemy-vitality">
+					<div class="health-copy"><span>VIDA</span><span id="enemy-health">— / —</span></div>
+					<div class="bar" role="progressbar" aria-label="Vida do inimigo" aria-valuemin="0" aria-valuemax="100"><div class="bar-fill enemy-fill" id="enemy-health-bar"></div></div>
+				</div>
+			</div>
+			<div class="message" id="battle-message" aria-live="polite">Um inimigo apareceu.</div>
+		</section>
+
+		<section class="player-hud" aria-label="Estado do jogador">
+			<div class="player-identity">
+				<div class="player-sprite" aria-hidden="true">⚔</div>
+				<div>
+					<span class="level">NÍVEL <span id="player-level">1</span></span>
+					<h2 id="player-name">Viajante</h2>
+				</div>
+			</div>
+			<div class="player-coins" aria-label="Moedas do jogador">
+				<span class="coin coin-gold">◈ <strong id="player-gold">0</strong></span>
+				<span class="coin coin-silver">◆ <strong id="player-silver">0</strong></span>
+			</div>
+			<div class="player-stats">
+				<div class="player-stat">
+					<div class="stat-heading"><span>VIDA</span><span id="player-health">100 / 100</span></div>
+					<div class="bar" id="player-health-progress" role="progressbar" aria-label="Vida do jogador" aria-valuemin="0" aria-valuemax="100"><div class="bar-fill player-fill" id="player-health-bar"></div></div>
+				</div>
+				<div class="player-stat">
+					<div class="stat-heading"><span>EXPERIÊNCIA</span><span id="player-xp">0 / 100</span></div>
+					<div class="bar"><div class="bar-fill xp-fill" id="player-xp-bar"></div></div>
+				</div>
+				<div class="player-stat" id="mana-stat" hidden>
+					<div class="stat-heading"><span>MANA</span><span id="player-mana">100 / 100</span></div>
+					<div class="bar"><div class="bar-fill mana-fill" id="player-mana-bar"></div></div>
+					<div class="stat-note" id="player-mana-effect" hidden></div>
+				</div>
+			</div>
+			<span id="player-health-copy" hidden></span>
+			<div id="player-health-bar-copy" hidden></div>
+		</section>
+
+		<div class="actions" aria-label="Ações de combate">
+			<button class="action primary" id="attack-button" type="button">⚔ &nbsp; Atacar</button>
+			<button class="action secondary" id="defend-button" type="button">🛡 &nbsp; Defender</button>
+			<button class="action secondary" id="heal-button" type="button">Curar (1)</button>
+			<button class="action secondary" id="mana-potion-button" type="button" hidden>Poção de Mana (2)</button>
+			<button class="action utility" id="inventory-button" type="button" aria-haspopup="dialog" aria-controls="inventory-modal">🎒 &nbsp; Inventário</button>
+			<button class="action utility" id="log-button" type="button" aria-haspopup="dialog" aria-controls="log-modal">📜 &nbsp; Registro</button>
+			<button class="action primary" id="continue-button" type="button" hidden>Próxima batalha &nbsp; →</button>
+			<button class="action" id="restart-button" type="button" hidden>Recomeçar</button>
+		</div>
+		<div class="battle-log-panel">
+			<ul class="log-list" id="battle-log" aria-live="polite"></ul>
+		</div>
+	</div>
+
+	<dialog class="modal" id="inventory-modal" aria-labelledby="inventory-title">
+		<section class="inventory-window">
+			<header class="modal-header">
+				<div><span class="section-label">EQUIPAMENTO E ESPÓLIOS</span><h2 id="inventory-title">Inventário</h2></div>
+				<button class="modal-close" type="button" data-close-modal aria-label="Fechar inventário">×</button>
+			</header>
+			<div class="inventory-layout">
+				<nav class="inventory-sidebar" aria-label="Categorias do inventário">
+					<button class="inventory-category" type="button" data-inventory-category="arma" aria-pressed="true">⚔ <span>Armas</span></button>
+					<button class="inventory-category" type="button" data-inventory-category="armadura" aria-pressed="false">🛡 <span>Armaduras</span></button>
+					<button class="inventory-category" type="button" data-inventory-category="outros" aria-pressed="false">✦ <span>Outros</span></button>
+				</nav>
+				<div class="inventory-content" id="inventory-content" aria-live="polite"></div>
+			</div>
+		</section>
+	</dialog>
+
+	<dialog class="modal" id="log-modal" aria-labelledby="log-title">
+		<section class="log-window">
+			<header class="modal-header">
+				<div><span class="section-label">EVENTOS DA AVENTURA</span><h2 id="log-title">Registro de combate</h2></div>
+				<button class="modal-close" type="button" data-close-modal aria-label="Fechar registro">×</button>
+			</header>
+			<ul class="log-list log-modal-list" id="battle-log-modal" aria-live="polite"></ul>
+		</section>
+	</dialog>
+
+		</main>
+	</div>
+	<script src="./possivelrpg.js" defer></script>
+	<footer>Feito por mim enquanto eu estudava JavaScript, com ajuda de IAs </footer>
+</body>
+</html>
