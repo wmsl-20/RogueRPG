@@ -611,7 +611,7 @@ function criarInimigo() {
     slime: {
       nome: "Slime",
       vida: 55,
-      dmg: 9,
+      dmg: 11,
       xp: 9,
       speed: 10,
       prata: 4,
@@ -638,7 +638,7 @@ function criarInimigo() {
     esqueleto: {
       nome: "Esqueleto",
       vida: 90,
-      dmg: 23,
+      dmg: 20,
       xp: 20,
       speed: 18,
       prata: 18,
@@ -656,7 +656,7 @@ function criarInimigo() {
     mago_inimigo: {
       nome: "Mago Inimigo",
       vida: 65,
-      dmg: 29,
+      dmg: 26,
       xp: 24,
       speed: 12,
       prata: 20,
