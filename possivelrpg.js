@@ -540,7 +540,7 @@ function iniciarJogo() {
 
   interfaceJogo.attack.disabled = false;
   interfaceJogo.defend.disabled = false;
-  interfaceJogo.continue.hidden = true;
+  atualizarBotaoBatalha();
   interfaceJogo.restart.hidden = true;
 
   criarInimigo();
@@ -703,6 +703,8 @@ function criarInimigo() {
 function atualizarTela() {
   if (!player || !inimigo) return;
 
+  atualizarBotaoBatalha();
+
   const vidaJogador = Math.max(0, player.vida_atual);
 
   const vidaInimigo = Math.max(0, inimigo.vida);
@@ -843,8 +845,8 @@ function finalizarBatalha() {
   interfaceJogo.defend.disabled = true;
   interfaceJogo.heal.disabled = true;
 
-  interfaceJogo.continue.hidden = true;
-  interfaceJogo.restart.hidden = false;
+  atualizarBotaoBatalha();
+  interfaceJogo.restart.hidden = true;
 }
 
 // ==============================
@@ -890,7 +892,7 @@ function novaRun() {
   interfaceJogo.attack.disabled = false;
   interfaceJogo.defend.disabled = false;
 
-  interfaceJogo.continue.hidden = true;
+  atualizarBotaoBatalha();
   interfaceJogo.restart.hidden = true;
 
   criarInimigo();
@@ -1009,7 +1011,7 @@ function concluirVitoria() {
   interfaceJogo.attack.disabled = true;
   interfaceJogo.defend.disabled = true;
 
-  interfaceJogo.continue.hidden = false;
+  atualizarBotaoBatalha();
 
   atualizarTela();
 
@@ -1320,7 +1322,7 @@ function resetarSave() {
   interfaceJogo.defend.disabled = true;
   interfaceJogo.heal.disabled = true;
 
-  interfaceJogo.continue.hidden = true;
+  atualizarBotaoBatalha();
   interfaceJogo.restart.hidden = true;
 
   interfaceClasses.selection.hidden = false;
@@ -1425,16 +1427,43 @@ interfaceJogo.manaPotion.addEventListener("click", () =>
 // PRÓXIMA BATALHA
 // ==============================
 
+function atualizarBotaoBatalha() {
+  interfaceJogo.continue.hidden = false;
+  interfaceJogo.continue.disabled = !player;
+  interfaceJogo.continue.textContent = player?.vida_atual <= 0
+    ? "Recomeçar"
+    : batalhaAtiva ? "Fugir" : "Próxima batalha →";
+}
+
+function fugirDaBatalha() {
+  if (!batalhaAtiva || !player || !inimigo || player.vida_atual <= 0) return;
+  batalhaAtiva = false;
+  defendendo = false;
+  interfaceJogo.attack.disabled = true;
+  interfaceJogo.defend.disabled = true;
+  interfaceJogo.message.textContent = "Você fugiu. Pronto para outra batalha?";
+  registrarMensagem(
+    `Você fugiu de ${inimigo.nome}. Nenhum XP, moeda ou item foi recebido.`,
+  );
+  atualizarTela();
+  salvarJogo();
+}
+
 interfaceJogo.continue.addEventListener("click", () => {
+  if (!player) return;
+  if (player.vida_atual <= 0) {
+    novaRun();
+    return;
+  }
+  if (batalhaAtiva) {
+    fugirDaBatalha();
+    return;
+  }
   batalhaAtiva = true;
-
-  interfaceJogo.continue.hidden = true;
-
+  defendendo = false;
   interfaceJogo.attack.disabled = false;
   interfaceJogo.defend.disabled = false;
-
   criarInimigo();
-
   salvarJogo();
 });
 

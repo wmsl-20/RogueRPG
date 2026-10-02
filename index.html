@@ -2,36 +2,24 @@
 <html lang="pt-BR">
 <head>
 	<meta charset="utf-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 	<meta name="theme-color" content="#05070d">
 	<title>RPG</title>
 	<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
 	<link rel="stylesheet" href="./rprstyle.css">
+	<link rel="stylesheet" href="./viewport.css">
+	<script src="./viewport.js" defer></script>
 </head>
 <body>
 	<div class="shell">
 		<main>
-			<div class="topbar">
-				<div class="menu-container" id="game-menu-container">
-					<button class="menu-toggle" id="menu-toggle" type="button" aria-label="Abrir menu" aria-expanded="false" aria-controls="game-menu">
-						<span></span>
-						<span></span>
-						<span></span>
-					</button>
-					<div class="menu-panel" id="game-menu" hidden>
-						<button class="menu-item" id="reset-save-button" type="button">Resetar Save</button>
-					</div>
-				</div>
-			</div>
+
 
 			<!-- ============================== -->
 <!-- SELEÇÃO DE CLASSE -->
 <!-- ============================== -->
 
-<section id="class-selection" hidden>
-    <div class="heading">
-        <h1>Escolha sua classe</h1>
-    </div>
+<section id="class-selection" aria-label="Escolha sua classe" hidden>
 
     <div class="class-options">
 
@@ -53,10 +41,7 @@
     </div>
 </section>
 
-<section id="character-creation" hidden>
-	<div class="heading">
-		<h1>Crie seu personagem</h1>
-	</div>
+<section id="character-creation" aria-label="Crie seu personagem" hidden>
 
 	<form class="character-form" id="character-form">
 		<label for="character-name">Nome do personagem</label>
@@ -73,9 +58,6 @@
 </section>
 
 <div id="game-content" hidden>
-    <div class="heading">
-        <h1>Combate</h1>
-    </div>
 
     <div class="game-grid">
 		<section class="arena" aria-label="Arena de combate">
@@ -94,6 +76,16 @@
 		</section>
 
 		<section class="player-hud" aria-label="Estado do jogador">
+<div class="menu-container" id="game-menu-container">
+					<button class="menu-toggle" id="menu-toggle" type="button" aria-label="Abrir menu" aria-expanded="false" aria-controls="game-menu">
+						<span></span>
+						<span></span>
+						<span></span>
+					</button>
+					<div class="menu-panel" id="game-menu" hidden>
+						<button class="menu-item" id="reset-save-button" type="button">Resetar Save</button>
+					</div>
+				</div>
 			<div class="player-identity">
 				<div class="player-sprite" aria-hidden="true">⚔</div>
 				<div>
@@ -134,11 +126,14 @@
 			<button class="action primary" id="continue-button" type="button" hidden>Próxima batalha &nbsp; →</button>
 			<button class="action" id="restart-button" type="button" hidden>Recomeçar</button>
 		</div>
-		<div class="battle-log-panel">
+		<div class="battle-log-panel" aria-label="Eventos recentes; histórico completo no botão Registro">
 			<ul class="log-list" id="battle-log" aria-live="polite"></ul>
 		</div>
 	</div>
 
+</div>
+		</main>
+	</div>
 	<dialog class="modal" id="inventory-modal" aria-labelledby="inventory-title">
 		<section class="inventory-window">
 			<header class="modal-header">
@@ -165,10 +160,6 @@
 			<ul class="log-list log-modal-list" id="battle-log-modal" aria-live="polite"></ul>
 		</section>
 	</dialog>
-
-		</main>
-	</div>
 	<script src="./possivelrpg.js" defer></script>
-	<footer>Feito por mim enquanto eu estudava JavaScript, com ajuda de IAs </footer>
 </body>
 </html>

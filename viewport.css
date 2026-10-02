@@ -1,0 +1,137 @@
+﻿/* Compact layouts preserve the existing theme and updated game HUD. */
+:root { --vh: 1dvh; }
+html { min-width: 0; height: 100%; overflow: hidden; }
+body {
+    position: fixed;
+    top: var(--viewport-top, 0px);
+    left: var(--viewport-left, 0px);
+    width: var(--viewport-width, 100%);
+    height: var(--viewport-height, 100dvh);
+    min-height: 0;
+    overflow: hidden;
+    padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+}
+:root[data-device] .shell { flex: 1 1 0; min-height: 0; width: calc(100% - 16px); padding: 8px 0; }
+main { display: flex; flex-direction: column; min-width: 0; }
+.menu-toggle { width: 36px; height: 36px; }
+:root[data-device] .heading { margin-bottom: 6px; }
+:root[data-device] .heading h1 { font-size: 18px; }
+:root[data-device] .game-grid { gap: 8px; align-items: stretch; }
+.arena { display: flex; flex-direction: column; }
+.arena-head { min-height: 26px; padding: 5px 10px; }
+:root[data-device] .enemy-stage { flex: 1; height: auto; min-height: 0; padding: 12px; gap: 4px; }
+:root[data-device] .creature { margin: 0; width: auto; font-size: clamp(42px, calc(15 * var(--vh)), 140px); }
+.enemy-stage h2 { font-size: clamp(15px, calc(3 * var(--vh)), 24px); overflow-wrap: anywhere; }
+.enemy-vitality { margin-top: 2px; }
+.message { min-height: 0; padding: 7px 10px; font-size: 11px; overflow-wrap: anywhere; }
+:root[data-device] .player-hud { padding: 10px; gap: 8px; grid-template-columns: 1fr; }
+:root[data-device] .player-identity { justify-content: start; justify-items: start; grid-template-columns: 38px minmax(0, 1fr); gap: 8px; }
+.player-identity > div:last-child { min-width: 0; }
+.player-identity h2 { font-size: 15px; }
+.player-sprite { width: 38px; height: 38px; font-size: 24px; }
+.player-coins { justify-content: flex-start; gap: 6px; }
+.coin { padding: 2px 6px; font-size: 14px; overflow-wrap: anywhere; }
+:root[data-device] .player-stats { gap: 8px; }
+.stat-heading { margin-bottom: 4px; }
+.stat-note { margin-top: 3px; font-size: 10px; }
+:root[data-device] .actions { gap: 6px; padding: 0; }
+.action { min-height: 40px; padding: 7px 6px; font-size: 12px; overflow-wrap: anywhere; }
+:root[data-device] .class-button { min-height: 0; padding: 12px; }
+.character-form { gap: 5px; }
+.character-form input, .character-form select { font-size: 16px; }
+:root[data-device] .battle-log-panel { grid-column: 1 / -1; margin: 0; padding: 6px 10px; }
+:root[data-device] .battle-log-panel .log-list { padding: 0; overflow: visible; max-height: none; }
+.battle-log-panel .log-list li { font-size: 11px; line-height: 1.4; padding: 4px 0; overflow-wrap: anywhere; }
+/* Full history remains available through Registro; this panel shows recent events. */
+.battle-log-panel .log-list li:nth-child(n + 3) { display: none; }
+:root[data-device="desktop"] .game-grid { grid-template-columns: minmax(0, 1fr) minmax(0, .55fr); }
+:root[data-device="desktop"] .arena { grid-row: 1 / 3; min-height: min(calc(60 * var(--vh)), 500px); }
+:root[data-device="desktop"] .player-hud { align-content: center; }
+:root[data-device="desktop"] .player-stats { grid-template-columns: 1fr; }
+:root[data-device="desktop"] .actions { grid-template-columns: repeat(2, minmax(0, 1fr)); align-content: start; }
+:root[data-device="mobile"] .arena { min-height: min(calc(29 * var(--vh)), 280px); }
+:root[data-device="mobile"] .player-hud { padding: 8px; }
+:root[data-device="mobile"] .player-stats { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; }
+:root[data-device="mobile"] .actions { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+:root[data-device="mobile"] .stat-heading { flex-wrap: wrap; font-size: 10px; gap: 2px; }
+:root[data-device="mobile"][data-orientation="landscape"] .game-grid { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+:root[data-device="mobile"][data-orientation="landscape"] .arena { grid-row: 1 / 3; min-height: min(calc(58 * var(--vh)), 340px); }
+:root[data-device="mobile"][data-orientation="landscape"] .actions { align-content: start; }
+:root[data-device="mobile"][data-orientation="landscape"] .class-options { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+:root[data-device="mobile"][data-orientation="landscape"] .character-form { width: min(100%, 650px); grid-template-columns: 1fr 1fr; }
+:root[data-device="mobile"][data-orientation="landscape"] .character-form label { grid-row: 1; }
+:root[data-device="mobile"][data-orientation="landscape"] .character-form button { grid-column: 1 / -1; }
+:root[data-device] .modal { position: fixed; inset: 0 0 auto; margin: 0 auto; max-height: none; overflow: visible; }
+:root[data-device] .inventory-window, :root[data-device] .log-window { max-height: none; overflow: visible; }
+:root[data-device] .inventory-layout { min-height: 0; }
+:root[data-device] .inventory-content, :root[data-device] .log-modal-list { max-height: none; overflow: visible; }
+:root[data-device] .inventory-content { padding: 10px; }
+.equipped-section { margin-bottom: 8px; }
+.items-heading { margin-top: 8px; }
+:root[data-device] .modal-header { padding: 8px 12px; }
+.inventory-item > div { min-width: 0; overflow-wrap: anywhere; }
+.log-modal-list li { overflow-wrap: anywhere; }
+.page-controls { display: flex; justify-content: center; align-items: center; gap: 12px; padding: 8px; border-top: 1px solid var(--line); font-size: 12px; }
+.page-controls button { min-height: 36px; border: 1px solid var(--line); color: var(--gold-bright); background: var(--surface); cursor: pointer; }
+.page-controls button:disabled { opacity: .45; cursor: default; }
+.page-controls button:focus-visible { outline: 2px solid var(--gold-bright); outline-offset: 2px; }
+
+/* Repeated combat clicks must not select the HUD or button labels. */
+.arena,
+.player-hud,
+.actions,
+button {
+    -webkit-user-select: none;
+    user-select: none;
+}
+
+/* Allow rapid taps without double-tap zoom; preserve pinch zoom. */
+:root[data-device="mobile"],
+:root[data-device="mobile"] body,
+button {
+    touch-action: manipulation;
+}
+
+/* Fill the viewport while keeping all actions in stable grid positions. */
+main { height: 100%; }
+#game-content { display: flex; flex: 1; min-height: 0; flex-direction: column; }
+:root[data-device] .game-grid { flex: 1; min-height: 0; grid-template-rows: minmax(170px, 1fr) auto auto 76px; }
+:root[data-device] .arena { min-height: 0; }
+:root[data-device] .player-hud { position: relative; align-content: center; }
+:root[data-device] .player-identity { padding-right: 46px; }
+.player-hud .menu-container { position: absolute; top: 10px; right: 10px; z-index: 4; }
+.player-hud .menu-panel { z-index: 5; }
+:root[data-device] .battle-log-panel { min-height: 76px; align-self: stretch; }
+:root[data-device="desktop"] .game-grid,
+:root[data-device="mobile"][data-orientation="landscape"] .game-grid {
+    grid-template-rows: auto minmax(180px, 1fr) 76px;
+}
+:root[data-device="desktop"] .actions,
+:root[data-device="mobile"][data-orientation="landscape"] .actions { align-content: stretch; grid-auto-rows: minmax(40px, 1fr); }
+#continue-button { grid-row: 1; grid-column: 1 / -1; }
+:root[data-device="mobile"][data-orientation="portrait"] .actions { grid-auto-rows: 44px; }
+:root[data-device] .message { height: 48px; display: grid; align-content: center; }
+:root[data-device] .stat-note { min-height: 13px; }
+#class-selection, #character-creation { margin: auto; width: min(100%, 960px); }
+/* The preview keeps the same height as new events arrive; Registro contains the full text. */
+.battle-log-panel .log-list li { height: 24px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+:root[data-device] #mana-stat .stat-note[hidden] { display: block !important; visibility: hidden; }
+
+/* Larger combat labels and enemy presentation, sized by the arena's own height. */
+:root[data-device] .actions .action { font-size: 22px; line-height: 1.15; padding: 4px 8px; }
+:root[data-device] .message { font-size: 18px; line-height: 1.2; }
+:root[data-device] .enemy-stage { container-type: size; gap: 6px; }
+:root[data-device] .creature { font-size: clamp(40px, 44cqh, 300px); }
+:root[data-device] .enemy-stage h2 { font-size: clamp(18px, 7cqh, 36px); }
+:root[data-device] .enemy-stage .level { font-size: clamp(12px, 4cqh, 18px); }
+:root[data-device] .enemy-vitality { width: min(460px, 82%); }
+:root[data-device] .enemy-vitality .health-copy { font-size: clamp(12px, 4cqh, 18px); margin-bottom: 6px; }
+.enemy-vitality .bar { height: 14px; }
+:root[data-device="mobile"] .actions .action { font-size: 18px; }
+:root[data-device="mobile"] .message { font-size: 16px; }
+/* Reserve room for the name and vitality on short arenas. */
+:root[data-device] .creature {
+    font-size: clamp(32px, min(44cqh, calc((100cqh - 120px) / 1.2)), 300px);
+    height: 1.2em;
+    line-height: 1.2;
+}
