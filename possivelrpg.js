@@ -1163,7 +1163,7 @@ function criarInimigo(tipoEncontro = "combate") {
     orc: {
       nome: "Orc",
       vida: 135,
-      dmg: 27,
+      dmg: 20,
       xp: 30,
       speed: 10,
       prata: 22,
@@ -1229,16 +1229,16 @@ function criarInimigo(tipoEncontro = "combate") {
 const bosses = {
   dragao: {
     nome: "Dragão",
-    vida: 500,
-    dmg: 50,
-    xp: 100,
+    vida: 400,
+    dmg: 40,
+    xp: 90,
     speed: 20,
     prata: 100,
     ouro: 50,
   },
   hidra: {
     nome: "Hidra",
-    vida: 500,
+    vida: 400,
     dmg: 60,
     xp: 100,
     speed: 15,
