@@ -378,26 +378,30 @@ h1 {
     color: var(--gold);
 }
 
-:root[data-device="mobile"] .shell,
-:root[data-device="mobile"] footer {
+@media (max-width: 720px) {
+    .shell,
+    footer {
         width: min(calc(100% - 24px), 520px);
     }
-:root[data-device="mobile"] .shell { padding-top: 24px; }
-:root[data-device="mobile"] .game-grid { grid-template-columns: 1fr; }
-:root[data-device="mobile"] .scene {
+
+    .shell { padding-top: 24px; }
+    .game-grid { grid-template-columns: 1fr; }
+
+    .scene {
         min-height: 240px;
         grid-template-columns: minmax(0, 1fr) 26px minmax(0, 1fr);
         gap: 8px;
         padding: 18px 12px;
     }
-:root[data-device="mobile"] .creature,
-:root[data-device="mobile"] .player-figure {
+
+    .creature,
+    .player-figure {
         width: min(100%, 76px);
         font-size: 40px;
     }
-:root[data-device="mobile"] .combatant h2 { font-size: 18px; }
 
-
+    .combatant h2 { font-size: 18px; }
+}
 .class-options {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -471,10 +475,10 @@ h1 {
 
 .character-form button { justify-self: start; margin-top: 6px; }
 
-:root[data-device="mobile"] .class-options { grid-template-columns: 1fr; }
-:root[data-device="mobile"] .class-button { min-height: auto; }
-
-
+@media (max-width: 720px) {
+    .class-options { grid-template-columns: 1fr; }
+    .class-button { min-height: auto; }
+}
 .mana-fill { background: #5f8fc9; }
 
 .stat[hidden] { display: none; }
@@ -1059,44 +1063,188 @@ h1, .modal-header h2 {
 .log-list li { padding: 11px 0; border-top: 1px solid rgb(90 71 37 / 42%); color: var(--muted); font-size: 12px; line-height: 1.6; }
 .log-list li:first-child { border-top: 0; color: var(--gold-bright); }
 
+.route-panel {
+    margin-bottom: 12px;
+    padding: clamp(16px, 3vw, 28px);
+    border: 1px solid var(--line);
+    border-radius: 5px;
+    background: linear-gradient(145deg, rgb(20 33 61 / 96%), rgb(13 21 36 / 98%) 62%);
+    box-shadow: 0 10px 36px #0005, 0 0 20px rgb(226 186 99 / 5%);
+}
+
+.route-heading {
+    display: flex;
+    align-items: end;
+    justify-content: space-between;
+    gap: 16px;
+    padding-bottom: 14px;
+    border-bottom: 1px solid rgb(90 71 37 / 65%);
+}
+
+.route-heading h2 {
+    margin: 5px 0 0;
+    color: var(--gold-bright);
+    font-family: Cinzel, Georgia, serif;
+    font-size: clamp(17px, 3vw, 22px);
+    text-transform: uppercase;
+}
+
+.route-progress { color: var(--muted); font-size: 12px; text-align: right; }
+
+.route-history {
+    display: flex;
+    min-height: 54px;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 8px 0;
+    color: var(--gold);
+}
+
+.route-history-node {
+    padding: 5px 9px;
+    border: 1px solid rgb(226 186 99 / 35%);
+    border-radius: 3px;
+    background: rgb(5 7 13 / 35%);
+    font-size: 12px;
+}
+
+.route-connector { color: var(--muted); font-size: 16px; }
+
+.route-options {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    align-items: stretch;
+    gap: 12px;
+    padding-top: 8px;
+}
+
+.route-card {
+    position: relative;
+    display: flex;
+    min-width: 0;
+    min-height: 145px;
+    align-items: center;
+    gap: 12px;
+    padding: 16px;
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    color: var(--ink);
+    background: linear-gradient(155deg, #172642, #0a1120);
+    text-align: left;
+    cursor: pointer;
+    transition: transform .2s ease, border-color .2s ease, box-shadow .2s ease;
+}
+
+.route-card::before {
+    position: absolute;
+    top: -13px;
+    left: 50%;
+    width: 1px;
+    height: 12px;
+    background: rgb(226 186 99 / 45%);
+    content: "";
+}
+
+.route-card:hover,
+.route-card:focus-visible {
+    transform: translateY(-3px);
+    border-color: var(--gold-bright);
+    outline: none;
+    box-shadow: 0 0 18px rgb(226 186 99 / 15%);
+}
+
+.route-icon {
+    display: grid;
+    width: 42px;
+    height: 42px;
+    flex: none;
+    place-items: center;
+    border: 1px solid rgb(226 186 99 / 40%);
+    border-radius: 50%;
+    color: var(--gold-bright);
+    background: rgb(226 186 99 / 7%);
+    font-size: 22px;
+}
+
+.route-card-copy { display: grid; min-width: 0; gap: 7px; }
+.route-card-copy strong { color: var(--gold-bright); font-size: 14px; }
+.route-card-copy > span { color: var(--muted); font-size: 11px; line-height: 1.5; }
+.route-arrow { margin-left: auto; color: var(--gold); font-size: 20px; }
+
+.shop-balance {
+    margin: 14px 0 8px;
+    color: var(--gold-bright);
+    font-size: 13px;
+}
+
+.shop-items { display: grid; gap: 0; margin-bottom: 16px; }
+
+.shop-item {
+    display: flex;
+    min-width: 0;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+    padding: 12px 4px;
+    border-top: 1px solid rgb(90 71 37 / 42%);
+}
+
+.shop-item > div { display: grid; min-width: 0; gap: 4px; }
+.shop-item strong { color: var(--ink); font-size: 13px; }
+.shop-item > div > span { color: var(--muted); font-size: 11px; line-height: 1.5; }
+.shop-item .shop-price { color: var(--gold); }
+.shop-item .item-button:disabled { cursor: not-allowed; opacity: .45; }
+#leave-shop-button { width: 100%; }
+
 @keyframes enemy-arrive {
     from { opacity: 0; transform: translateY(12px) scale(.96); }
     to { opacity: 1; transform: translateY(0) scale(1); }
 }
 
-:root[data-device="desktop"] .shell { padding-top: 24px; }
-:root[data-device="desktop"] .heading { margin-bottom: 12px; }
-:root[data-device="desktop"] .player-hud { grid-template-columns: minmax(220px, .72fr) minmax(0, 1.8fr); align-items: center; gap: 24px; padding: 20px 24px; }
-:root[data-device="desktop"] .player-identity { justify-content: flex-start; }
-:root[data-device="desktop"] .player-stats { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
-:root[data-device="desktop"] .actions { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-:root[data-device="desktop"] .class-options { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+@media (min-width: 768px) {
+    .shell { padding-top: 24px; }
+    .heading { margin-bottom: 12px; }
+    .player-hud { grid-template-columns: minmax(220px, .72fr) minmax(0, 1.8fr); align-items: center; gap: 24px; padding: 20px 24px; }
+    .player-identity { justify-content: flex-start; }
+    .player-stats { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+    .actions { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .class-options { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .route-options { gap: 9px; }
+    .route-card { min-height: 158px; flex-direction: column; align-items: flex-start; }
+    .route-arrow { position: absolute; right: 12px; bottom: 10px; }
+}
 
-
-
-:root[data-device="mobile"] .shell,
-:root[data-device="mobile"] footer { width: calc(100% - 24px); }
-:root[data-device="mobile"] .shell { padding-top: 14px; }
-:root[data-device="mobile"] .heading h1 { font-size: 19px; }
-:root[data-device="mobile"] .enemy-stage { height: 38svh; min-height: 280px; padding: 24px 16px; }
-:root[data-device="mobile"] .creature { font-size: 100px; }
-:root[data-device="mobile"] .enemy-vitality { width: min(260px, 84%); }
-:root[data-device="mobile"] .player-hud { gap: 16px; padding: 16px; }
-:root[data-device="mobile"] .player-identity { justify-content: flex-start; }
-:root[data-device="mobile"] .player-stats { grid-template-columns: minmax(0, 1fr); }
-:root[data-device="mobile"] .actions { grid-template-columns: minmax(0, 1fr); }
-:root[data-device="mobile"] .inventory-layout { grid-template-columns: minmax(0, 1fr); }
-:root[data-device="mobile"] .inventory-sidebar { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 5px; padding: 9px; border-right: 0; border-bottom: 1px solid rgb(90 71 37 / 65%); }
-:root[data-device="mobile"] .inventory-category { justify-content: center; gap: 5px; padding: 0 5px; font-size: 11px; }
-:root[data-device="mobile"] .inventory-content { max-height: min(58dvh, 560px); padding: 14px; }
-:root[data-device="mobile"] .modal { width: calc(100% - 16px); max-height: 94dvh; }
-:root[data-device="mobile"] .inventory-window,
-:root[data-device="mobile"] .log-window { max-height: 94dvh; }
-:root[data-device="mobile"] .modal-header { padding: 13px 14px; }
-:root[data-device="mobile"] .modal-header h2 { font-size: 16px; }
-:root[data-device="mobile"] .log-list { max-height: 70dvh; padding-right: 14px; padding-left: 14px; }
-
-
+@media (max-width: 767px) {
+    .shell, footer { width: calc(100% - 24px); }
+    .shell { padding-top: 14px; }
+    .heading h1 { font-size: 19px; }
+    .enemy-stage { height: 38svh; min-height: 280px; padding: 24px 16px; }
+    .creature { font-size: 100px; }
+    .enemy-vitality { width: min(260px, 84%); }
+    .player-hud { gap: 16px; padding: 16px; }
+    .player-identity { justify-content: flex-start; }
+    .player-stats { grid-template-columns: minmax(0, 1fr); }
+    .actions { grid-template-columns: minmax(0, 1fr); }
+    .route-options { grid-template-columns: minmax(0, 1fr); gap: 12px; padding-top: 14px; }
+    .route-card { min-height: 86px; flex-direction: row; align-items: center; padding: 12px; }
+    .route-card::before { top: -13px; left: 32px; height: 12px; }
+    .route-arrow { position: static; }
+    .route-heading { align-items: flex-start; flex-direction: column; gap: 5px; }
+    .route-progress { text-align: left; }
+    .route-history { justify-content: flex-start; overflow-x: auto; }
+    .shop-item { align-items: flex-start; }
+    .shop-item .item-button { align-self: center; }
+    .inventory-layout { grid-template-columns: minmax(0, 1fr); }
+    .inventory-sidebar { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 5px; padding: 9px; border-right: 0; border-bottom: 1px solid rgb(90 71 37 / 65%); }
+    .inventory-category { justify-content: center; gap: 5px; padding: 0 5px; font-size: 11px; }
+    .inventory-content { max-height: min(58dvh, 560px); padding: 14px; }
+    .modal { width: calc(100% - 16px); max-height: 94dvh; }
+    .inventory-window, .log-window { max-height: 94dvh; }
+    .modal-header { padding: 13px 14px; }
+    .modal-header h2 { font-size: 16px; }
+    .log-list { max-height: 70dvh; padding-right: 14px; padding-left: 14px; }
+}
 
 @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
