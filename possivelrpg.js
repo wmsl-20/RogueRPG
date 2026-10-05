@@ -386,7 +386,7 @@ let batalhaAtiva = false;
 let categoriaInventario = "arma";
 let faseJogo = "batalha";
 
-const PASSOS_ATE_BOSS = 4;
+const PASSOS_ATE_BOSS = 10;
 const OFERTAS_LOJA = [
   { id: "espada_de_ferro_basica", preco: 35 },
   { id: "maca", preco: 55 },
