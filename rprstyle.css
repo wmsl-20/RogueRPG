@@ -108,6 +108,7 @@ footer {
 .menu-panel[hidden] { display: none; }
 
 .menu-item {
+    display: block;
     width: 100%;
     min-height: 38px;
     padding: 0 10px;
@@ -116,6 +117,8 @@ footer {
     color: var(--ink);
     background: transparent;
     text-align: left;
+    text-decoration: none;
+    font: inherit;
     cursor: pointer;
 }
 
@@ -1119,6 +1122,8 @@ h1, .modal-header h2 {
     padding-top: 8px;
 }
 
+.route-options-expanded { grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
+
 .route-card {
     position: relative;
     display: flex;
@@ -1195,10 +1200,70 @@ h1, .modal-header h2 {
 .shop-item > div > span { color: var(--muted); font-size: 11px; line-height: 1.5; }
 .shop-item .shop-price { color: var(--gold); }
 .shop-item .item-button:disabled { cursor: not-allowed; opacity: .45; }
+#refresh-shop-button { width: 100%; margin-bottom: 10px; }
 #leave-shop-button { width: 100%; }
+
+.route-panel,
+.game-grid,
+.player-hud,
+.arena,
+.actions .action {
+    transition: opacity .22s ease, transform .22s ease, border-color .22s ease, box-shadow .22s ease;
+}
+
+.player-debuffs {
+    grid-column: 1 / -1;
+    color: #d98d75;
+}
+
+.route-panel:not([hidden]),
+.game-grid:not([hidden]) {
+    animation: scene-enter .34s ease-out both;
+}
+
+.enemy-party {
+    display: grid;
+    width: min(100%, 440px);
+    grid-template-columns: repeat(auto-fit, minmax(145px, 1fr));
+    gap: 10px;
+    margin-top: 14px;
+}
+
+.enemy-party-card {
+    display: grid;
+    gap: 7px;
+    padding: 11px;
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    color: var(--ink);
+    background: rgb(5 7 13 / 55%);
+    text-align: left;
+    cursor: pointer;
+    animation: enemy-card-enter .3s ease-out both;
+    transition: opacity .2s ease, transform .2s ease, border-color .2s ease;
+}
+
+.enemy-party-card:nth-child(2) { animation-delay: .08s; }
+.enemy-party-card:hover:not(:disabled) { transform: translateY(-2px); }
+.enemy-party-card.is-target { border-color: var(--gold-bright); box-shadow: 0 0 14px rgb(226 186 99 / 14%); }
+.enemy-party-card.is-defeated { opacity: .42; transform: scale(.97); cursor: default; }
+.enemy-party-card strong { color: var(--gold-bright); font-size: 12px; }
+.enemy-party-card > span:not(.enemy-party-health) { color: var(--muted); font-size: 11px; }
+.enemy-party-health { display: block; height: 6px; overflow: hidden; border-radius: 5px; background: #251b20; }
+.enemy-party-health > span { display: block; height: 100%; border-radius: inherit; background: var(--red); transition: width .25s ease; }
 
 @keyframes enemy-arrive {
     from { opacity: 0; transform: translateY(12px) scale(.96); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes scene-enter {
+    from { opacity: 0; transform: translateY(9px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes enemy-card-enter {
+    from { opacity: 0; transform: translateY(8px) scale(.98); }
     to { opacity: 1; transform: translateY(0) scale(1); }
 }
 
