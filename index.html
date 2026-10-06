@@ -7,11 +7,23 @@
 	<title>RPG</title>
 	<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
 	<link rel="stylesheet" href="./rprstyle.css">
-	<link rel="stylesheet" href="./viewport.css">
 </head>
 <body>
 	<div class="shell">
 		<main>
+			<div class="topbar">
+				<div class="menu-container" id="game-menu-container">
+					<button class="menu-toggle" id="menu-toggle" type="button" aria-label="Abrir menu" aria-expanded="false" aria-controls="game-menu">
+						<span></span>
+						<span></span>
+						<span></span>
+					</button>
+					<div class="menu-panel" id="game-menu" hidden>
+						<button class="menu-item" id="reset-save-button" type="button">Resetar Save</button>
+						<a class="menu-item" href="https://github.com/wmsl-20/RogueRPG" target="_blank" rel="noopener noreferrer">Tutorial de como jogar</a>
+					</div>
+				</div>
+			</div>
 
 			<!-- ============================== -->
 <!-- SELEÇÃO DE CLASSE -->
@@ -62,6 +74,10 @@
 </section>
 
 <div id="game-content" hidden>
+    <div class="heading">
+        <h1>Aventura</h1>
+    </div>
+
 	<section class="route-panel" id="route-panel" aria-live="polite" hidden>
 		<div class="route-heading">
 			<div>
@@ -75,6 +91,7 @@
 		<div class="shop-view" id="shop-view" hidden>
 			<p class="shop-balance" id="shop-balance"></p>
 			<div class="shop-items" id="shop-items"></div>
+			<button class="action secondary" id="refresh-shop-button" type="button">Atualizar itens (5 prata)</button>
 			<button class="action primary" id="leave-shop-button" type="button">Sair da loja e continuar &nbsp; →</button>
 		</div>
 	</section>
@@ -87,6 +104,7 @@
 				<div class="creature" id="enemy-art" aria-hidden="true">◉</div>
 				<h2 id="enemy-name">Inimigo</h2>
 				<span class="level" id="enemy-level">NÍVEL 2</span>
+				<div class="enemy-party" id="enemy-party" hidden></div>
 				<div class="enemy-vitality">
 					<div class="health-copy"><span>VIDA</span><span id="enemy-health">— / —</span></div>
 					<div class="bar" role="progressbar" aria-label="Vida do inimigo" aria-valuemin="0" aria-valuemax="100"><div class="bar-fill enemy-fill" id="enemy-health-bar"></div></div>
@@ -96,16 +114,6 @@
 		</section>
 
 		<section class="player-hud" aria-label="Estado do jogador">
-			<div class="menu-container" id="game-menu-container">
-				<button class="menu-toggle" id="menu-toggle" type="button" aria-label="Abrir menu" aria-expanded="false" aria-controls="game-menu">
-					<span></span>
-					<span></span>
-					<span></span>
-				</button>
-				<div class="menu-panel" id="game-menu" hidden>
-					<button class="menu-item" id="reset-save-button" type="button">Resetar Save</button>
-				</div>
-			</div>
 			<div class="player-identity">
 				<div class="player-sprite" aria-hidden="true">⚔</div>
 				<div>
@@ -131,6 +139,7 @@
 					<div class="bar"><div class="bar-fill mana-fill" id="player-mana-bar"></div></div>
 					<div class="stat-note" id="player-mana-effect" hidden></div>
 				</div>
+				<div class="stat-note player-debuffs" id="player-debuffs" hidden></div>
 			</div>
 			<span id="player-health-copy" hidden></span>
 			<div id="player-health-bar-copy" hidden></div>
@@ -180,9 +189,13 @@
 		</section>
 	</dialog>
 
-			</div>
 		</main>
 	</div>
+	<script src="./possivelrpg.js" defer></script>
+	<footer>Feito por mim enquanto eu estudava JavaScript, com ajuda de IAs </footer>
+</body>
+</html>
+
 	<script src="./possivelrpg.js" defer></script>
 	<script src="./viewport.js" defer></script>
 </body>
