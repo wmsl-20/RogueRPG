@@ -11,7 +11,7 @@ body {
     overflow: hidden;
     padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
 }
-:root[data-device] .shell { flex: 1 1 0; min-height: 0; width: calc(100% - 16px); padding: 8px 0; }
+:root[data-device] .shell { flex: 1 1 0; min-height: 0; width: calc(100% - 16px); margin: 0 auto; padding: 5px 0 5px; }
 main { display: flex; flex-direction: column; min-width: 0; }
 .menu-toggle { width: 36px; height: 36px; }
 :root[data-device] .heading { margin-bottom: 6px; }
@@ -109,7 +109,7 @@ main { height: 100%; }
 :root[data-device="desktop"] .actions,
 :root[data-device="mobile"][data-orientation="landscape"] .actions { align-content: stretch; grid-auto-rows: minmax(40px, 1fr); }
 #continue-button { grid-row: 1; grid-column: 1 / -1; }
-:root[data-device="mobile"][data-orientation="portrait"] .actions { grid-auto-rows: 44px; }
+:root[data-device="mobile"][data-orientation="portrait"] .actions { grid-auto-rows: 36px; }
 :root[data-device] .message { height: 48px; display: grid; align-content: center; }
 :root[data-device] .stat-note { min-height: 13px; }
 #class-selection, #character-creation { margin: auto; width: min(100%, 960px); }
@@ -135,3 +135,135 @@ main { height: 100%; }
     height: 1.2em;
     line-height: 1.2;
 }
+
+/* Leave enough room for the enemy on short portrait screens. */
+:root[data-device="mobile"][data-orientation="portrait"] .game-grid {
+    gap: 6px;
+    grid-template-rows: minmax(220px, 1fr) auto auto 60px;
+}
+:root[data-device="mobile"][data-orientation="portrait"] .player-hud { padding: 6px 8px; gap: 5px; }
+:root[data-device="mobile"][data-orientation="portrait"] .player-identity { grid-template-columns: 32px minmax(0, 1fr); gap: 6px; }
+:root[data-device="mobile"][data-orientation="portrait"] .player-sprite { width: 32px; height: 32px; font-size: 22px; }
+:root[data-device="mobile"][data-orientation="portrait"] .player-coins { gap: 4px; }
+:root[data-device="mobile"][data-orientation="portrait"] .coin { padding: 1px 5px; }
+:root[data-device="mobile"][data-orientation="portrait"] .player-stats { gap: 5px; }
+:root[data-device="mobile"][data-orientation="portrait"] .stat-heading { margin-bottom: 2px; }
+:root[data-device="mobile"][data-orientation="portrait"] .stat-note { min-height: 11px; margin-top: 2px; }
+:root[data-device="mobile"][data-orientation="portrait"] .actions { gap: 4px; }
+:root[data-device="mobile"][data-orientation="portrait"] .actions .action { min-height: 36px; padding: 3px 6px; font-size: 16px; }
+:root[data-device="mobile"][data-orientation="portrait"] .battle-log-panel { min-height: 60px; padding: 4px 8px; }
+:root[data-device="mobile"][data-orientation="portrait"] .arena-head { min-height: 22px; padding: 3px 8px; }
+:root[data-device="mobile"][data-orientation="portrait"] .message { height: 36px; flex-shrink: 0; padding: 4px 8px; font-size: 14px; }
+:root[data-device="mobile"][data-orientation="portrait"] .enemy-stage { padding: 8px; gap: 3px; }
+:root[data-device="mobile"][data-orientation="portrait"] .enemy-stage h2 { font-size: clamp(16px, 7cqh, 26px); }
+:root[data-device="mobile"][data-orientation="portrait"] .enemy-stage .level { font-size: 11px; }
+:root[data-device="mobile"][data-orientation="portrait"] .enemy-vitality .health-copy { font-size: 11px; margin-bottom: 3px; }
+:root[data-device="mobile"][data-orientation="portrait"] .enemy-vitality .bar { height: 11px; }
+:root[data-device="mobile"][data-orientation="portrait"] .creature {
+    font-size: clamp(24px, min(44cqh, calc((100cqh - 90px) / 1.2)), 180px);
+}
+
+/* Route selection fills the available screen; the shop keeps its own layout. */
+:root[data-device] .route-panel:has(.route-options:not([hidden])) {
+    display: flex;
+    flex: 1;
+    min-height: 0;
+    flex-direction: column;
+    margin-bottom: 0;
+    padding: clamp(12px, 3vh, 28px);
+    gap: clamp(8px, 2vh, 18px);
+}
+:root[data-device] .route-heading {
+    flex-shrink: 0;
+    align-items: center;
+    padding-bottom: clamp(8px, 2vh, 18px);
+}
+:root[data-device] .route-heading .section-label { font-size: 16px; }
+:root[data-device] .route-heading h2 {
+    font-size: clamp(22px, 3vw, 40px);
+    line-height: 1.15;
+    overflow-wrap: anywhere;
+}
+:root[data-device] .route-progress { font-size: 20px; }
+:root[data-device] .route-history {
+    flex-shrink: 0;
+    flex-wrap: wrap;
+    min-height: 0;
+    padding: 0;
+    gap: 8px;
+}
+:root[data-device] .route-history:empty { display: none; }
+:root[data-device] .route-history-node { font-size: 20px; padding: 6px 12px; }
+:root[data-device] .route-connector { font-size: 24px; }
+:root[data-device] .route-options {
+    flex: 1;
+    min-height: 0;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-rows: minmax(0, 1fr);
+    gap: 12px;
+    padding-top: 6px;
+}
+:root[data-device] .route-card {
+    min-height: 0;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: clamp(12px, 3vh, 28px);
+    padding: clamp(16px, 3vw, 36px);
+    text-align: center;
+}
+:root[data-device] .route-icon {
+    width: clamp(64px, 14vh, 112px);
+    height: clamp(64px, 14vh, 112px);
+    font-size: clamp(32px, 7vh, 56px);
+}
+:root[data-device] .route-card-copy { gap: 12px; }
+:root[data-device] .route-card-copy strong { font-size: clamp(26px, 2.6vw, 38px); }
+:root[data-device] .route-card-copy > span { font-size: clamp(20px, 1.8vw, 26px); line-height: 1.25; }
+:root[data-device] .route-arrow {
+    position: static;
+    margin: 0;
+    font-size: 32px;
+}
+
+/* Portrait phones use three generous rows, with the icon beside the text. */
+:root[data-device="mobile"][data-orientation="portrait"] .route-heading {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 6px;
+}
+:root[data-device="mobile"][data-orientation="portrait"] .route-heading h2 { font-size: clamp(22px, 6vw, 30px); }
+:root[data-device="mobile"][data-orientation="portrait"] .route-history { gap: 4px; justify-content: center; }
+:root[data-device="mobile"][data-orientation="portrait"] .route-history-node { font-size: 16px; padding: 4px 6px; }
+:root[data-device="mobile"][data-orientation="portrait"] .route-connector { font-size: 18px; }
+:root[data-device="mobile"][data-orientation="portrait"] .route-options {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: repeat(3, minmax(0, 1fr));
+}
+:root[data-device="mobile"][data-orientation="portrait"] .route-card {
+    flex-direction: row;
+    justify-content: flex-start;
+    gap: 12px;
+    padding: 12px;
+    text-align: left;
+}
+:root[data-device="mobile"][data-orientation="portrait"] .route-icon { width: 52px; height: 52px; font-size: 28px; }
+:root[data-device="mobile"][data-orientation="portrait"] .route-card-copy { flex: 1; gap: 6px; }
+:root[data-device="mobile"][data-orientation="portrait"] .route-card-copy strong { font-size: 26px; }
+:root[data-device="mobile"][data-orientation="portrait"] .route-card-copy > span { font-size: 20px; }
+:root[data-device="mobile"][data-orientation="portrait"] .route-arrow { font-size: 24px; }
+
+/* Landscape phones keep three columns and reserve height for the choices. */
+:root[data-device="mobile"][data-orientation="landscape"] .route-panel:has(.route-options:not([hidden])) { padding: 10px; gap: 6px; }
+:root[data-device="mobile"][data-orientation="landscape"] .route-heading { flex-direction: row; gap: 12px; padding-bottom: 6px; }
+:root[data-device="mobile"][data-orientation="landscape"] .route-heading .section-label { font-size: 14px; }
+:root[data-device="mobile"][data-orientation="landscape"] .route-heading h2 { font-size: clamp(20px, 5vh, 28px); margin-top: 2px; }
+:root[data-device="mobile"][data-orientation="landscape"] .route-progress { font-size: 18px; }
+:root[data-device="mobile"][data-orientation="landscape"] .route-history { justify-content: center; gap: 6px; }
+:root[data-device="mobile"][data-orientation="landscape"] .route-history-node { font-size: 16px; padding: 2px 8px; }
+:root[data-device="mobile"][data-orientation="landscape"] .route-card { padding: 10px; gap: 6px; }
+:root[data-device="mobile"][data-orientation="landscape"] .route-icon { width: clamp(36px, 12vh, 56px); height: clamp(36px, 12vh, 56px); font-size: 26px; }
+:root[data-device="mobile"][data-orientation="landscape"] .route-card-copy { gap: 4px; }
+:root[data-device="mobile"][data-orientation="landscape"] .route-card-copy strong { font-size: 24px; }
+:root[data-device="mobile"][data-orientation="landscape"] .route-card-copy > span { font-size: 18px; line-height: 1.15; }
+:root[data-device="mobile"][data-orientation="landscape"] .route-arrow { font-size: 22px; }

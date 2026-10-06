@@ -7,22 +7,11 @@
 	<title>RPG</title>
 	<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
 	<link rel="stylesheet" href="./rprstyle.css">
+	<link rel="stylesheet" href="./viewport.css">
 </head>
 <body>
 	<div class="shell">
 		<main>
-			<div class="topbar">
-				<div class="menu-container" id="game-menu-container">
-					<button class="menu-toggle" id="menu-toggle" type="button" aria-label="Abrir menu" aria-expanded="false" aria-controls="game-menu">
-						<span></span>
-						<span></span>
-						<span></span>
-					</button>
-					<div class="menu-panel" id="game-menu" hidden>
-						<button class="menu-item" id="reset-save-button" type="button">Resetar Save</button>
-					</div>
-				</div>
-			</div>
 
 			<!-- ============================== -->
 <!-- SELEÇÃO DE CLASSE -->
@@ -73,10 +62,6 @@
 </section>
 
 <div id="game-content" hidden>
-    <div class="heading">
-        <h1>Aventura</h1>
-    </div>
-
 	<section class="route-panel" id="route-panel" aria-live="polite" hidden>
 		<div class="route-heading">
 			<div>
@@ -111,6 +96,16 @@
 		</section>
 
 		<section class="player-hud" aria-label="Estado do jogador">
+			<div class="menu-container" id="game-menu-container">
+				<button class="menu-toggle" id="menu-toggle" type="button" aria-label="Abrir menu" aria-expanded="false" aria-controls="game-menu">
+					<span></span>
+					<span></span>
+					<span></span>
+				</button>
+				<div class="menu-panel" id="game-menu" hidden>
+					<button class="menu-item" id="reset-save-button" type="button">Resetar Save</button>
+				</div>
+			</div>
 			<div class="player-identity">
 				<div class="player-sprite" aria-hidden="true">⚔</div>
 				<div>
@@ -185,9 +180,10 @@
 		</section>
 	</dialog>
 
+			</div>
 		</main>
 	</div>
 	<script src="./possivelrpg.js" defer></script>
-	<footer>Feito por mim enquanto eu estudava JavaScript, com ajuda de IAs </footer>
+	<script src="./viewport.js" defer></script>
 </body>
 </html>
