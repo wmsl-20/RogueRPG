@@ -8,7 +8,9 @@
   root.dataset.device = mobile ? 'mobile' : 'desktop';
   const main = document.querySelector('main');
   let frame;
-  const schedule = () => {
+  let fitPending = false;
+  const schedule = (fit = true) => {
+    fitPending ||= fit === true;
     cancelAnimationFrame(frame);
     frame = requestAnimationFrame(update);
   };
@@ -28,11 +30,11 @@
     controls.append(previous, label, next);
     dialog.firstElementChild.append(controls);
     const pager = { dialog, content, controls, previous, next, label, page: 0 };
-    previous.addEventListener('click', () => { pager.page--; schedule(); });
-    next.addEventListener('click', () => { pager.page++; schedule(); });
-    new MutationObserver(() => { pager.page = 0; schedule(); })
+    previous.addEventListener('click', () => { pager.page--; schedule(false); });
+    next.addEventListener('click', () => { pager.page++; schedule(false); });
+    new MutationObserver(() => { pager.page = 0; schedule(false); })
       .observe(content, { childList: true });
-    new MutationObserver(schedule).observe(dialog, { attributes: true, attributeFilter: ['open'] });
+    new MutationObserver(() => schedule(false)).observe(dialog, { attributes: true, attributeFilter: ['open'] });
     return pager;
   });
   function paginate(pager, height, top) {
@@ -84,29 +86,39 @@
     root.style.setProperty('--viewport-left', `${viewport?.offsetLeft ?? 0}px`);
     root.style.setProperty('--vh', `${height / 100}px`);
     root.dataset.orientation = width > height ? 'landscape' : 'portrait';
-    main.style.zoom = '1';
-    const shell = main.parentElement;
-    const style = getComputedStyle(shell);
-    const available = Math.max(1, shell.clientHeight - parseFloat(style.paddingTop) - parseFloat(style.paddingBottom));
-    main.style.height = `${available}px`;
-    for (let attempt = 0; attempt < 6; attempt++) {
-      const zoom = parseFloat(main.style.zoom) || 1;
-      const size = Math.max(main.getBoundingClientRect().height, main.scrollHeight * zoom);
-      if (size <= available + .5) break;
-      const scale = zoom * available / size;
-      main.style.zoom = String(scale);
-      main.style.height = `${available / scale}px`;
+    if (fitPending) {
+      fitPending = false;
+      main.style.zoom = '1';
+      const shell = main.parentElement;
+      const style = getComputedStyle(shell);
+      const available = Math.max(1, shell.clientHeight - parseFloat(style.paddingTop) - parseFloat(style.paddingBottom));
+      main.style.height = `${available}px`;
+      for (let attempt = 0; attempt < 6; attempt++) {
+        const zoom = parseFloat(main.style.zoom) || 1;
+        const size = Math.max(main.offsetHeight, main.scrollHeight) * zoom;
+        if (size <= available + .5) break;
+        const scale = zoom * available / size;
+        main.style.zoom = String(scale);
+        main.style.height = `${available / scale}px`;
+      }
     }
     pagers.forEach(pager => paginate(pager, height, top));
   }
-  new MutationObserver(schedule).observe(main, {
-    subtree: true, childList: true, characterData: true,
-    attributes: true, attributeFilter: ['hidden'],
+  // Only actual visibility changes outside dialogs can change the screen layout.
+  // Combat rewrites text and assigns the same hidden values every turn.
+  new MutationObserver(records => {
+    if (records.some(record =>
+      !record.target.closest('.modal, .menu-panel') &&
+      (record.oldValue !== null) !== record.target.hasAttribute('hidden')
+    )) schedule();
+  }).observe(main, {
+    subtree: true, attributes: true, attributeOldValue: true,
+    attributeFilter: ['hidden'],
   });
-  window.addEventListener('resize', schedule);
-  window.addEventListener('orientationchange', schedule);
-  window.visualViewport?.addEventListener('resize', schedule);
-  window.visualViewport?.addEventListener('scroll', schedule);
-  document.fonts?.ready.then(schedule);
+  window.addEventListener('resize', () => schedule());
+  window.addEventListener('orientationchange', () => schedule());
+  window.visualViewport?.addEventListener('resize', () => schedule());
+  window.visualViewport?.addEventListener('scroll', () => schedule(false));
+  document.fonts?.ready.then(() => schedule());
   schedule();
 })();
