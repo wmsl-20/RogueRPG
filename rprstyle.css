@@ -112,13 +112,14 @@ footer {
     width: 100%;
     min-height: 38px;
     padding: 0 10px;
-    border: 0;
+    border: 1px solid var(--line);
     border-radius: 2px;
     color: var(--ink);
     background: transparent;
     text-align: left;
     text-decoration: none;
     font: inherit;
+    font-size: 22px;
     cursor: pointer;
 }
 
@@ -126,7 +127,9 @@ footer {
 .menu-item:focus-visible {
     color: var(--gold);
     background: #211a11;
-    outline: none;
+    border-color: var(--gold);
+    outline: 2px solid var(--gold);
+    outline-offset: 1px;
 }
 
 h1 {
@@ -477,6 +480,38 @@ h1 {
 }
 
 .character-form button { justify-self: start; margin-top: 6px; }
+
+.game-over-screen {
+    display: grid;
+    min-height: min(70svh, 620px);
+    place-items: center;
+    padding: 24px 0;
+}
+
+.game-over-card {
+    width: min(100%, 520px);
+    padding: clamp(24px, 6vw, 44px);
+    border: 4px solid var(--red);
+    background: linear-gradient(145deg, #251416, var(--surface) 70%);
+    box-shadow: 6px 6px 0 var(--shadow);
+    text-align: center;
+}
+
+.game-over-card h1 {
+    margin: 8px 0 14px;
+    color: #ed817b;
+    font-family: "Cinzel", Georgia, serif;
+    font-size: clamp(28px, 7vw, 42px);
+}
+
+.game-over-card p {
+    margin: 0 0 24px;
+    color: var(--muted);
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+.game-over-card .action { min-width: 160px; }
 
 @media (max-width: 720px) {
     .class-options { grid-template-columns: 1fr; }

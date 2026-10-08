@@ -52,14 +52,15 @@ const classe_arqueiro = {
   level: 1,
   experiencia: 0,
   run_drop_ids: [],
+  reducao_recarregamento: 0,
 };
 
 const classe_mago = {
   classe: "mago",
 
   // Vida
-  vida_max: 75,
-  vida_atual: 75,
+  vida_max: 80,
+  vida_atual: 80,
   //mana
   mana_max: 100,
   mana_atual: 100,
@@ -139,6 +140,14 @@ const espada_longa = {
   dmg: 10,
 };
 
+const machado_duplo_do_minotauro = {
+  id: "machado_duplo_do_minotauro",
+  tipo: "arma",
+  nome: "Machado duplo do minotauro",
+  dmg: 17,
+  area_dmg: 10, // dano adicional em área (para todos os inimigos)
+};
+
 // ==============================
 // ARMAS DE LONGO ALCANCE
 // ==============================
@@ -155,7 +164,7 @@ const arco_de_bambu_basico = {
   tipo: "arma",
   nome: "Arco de bambu básico",
   dmg: 7,
-  reload_time: 0, // tempo de recarga em turnos
+  reload_time: 1, // tempo de recarga em turnos
 };
 
 const besta = {
@@ -171,7 +180,16 @@ const arco_composto = {
   tipo: "arma",
   nome: "Arco composto",
   dmg: 12,
-  reload_time: 1.5, // tempo de recarga em turnos
+  reload_time: 1, // tempo de recarga em turnos
+};
+
+const zarabatana_de_veneno = {
+  id: "zarabatana_de_veneno",
+  tipo: "arma",
+  nome: "Zarabatana de veneno",
+  dmg: 15,
+  veneno_dano: 5, // dano de veneno por turno
+  veneno_duration: 3, // duração do efeito de veneno em turnos
 };
 
 // ==============================
@@ -270,10 +288,12 @@ const ITENS = {
   espada_de_ferro_basica,
   maca: maça,
   espada_longa,
+  machado_duplo_do_minotauro,
   arco_inicial,
   arco_de_bambu_basico,
   besta,
   arco_composto,
+  zarabatana_de_veneno,
   cajado_inicial,
   cajado_de_madeira_basico,
   varinha_magica,
@@ -365,6 +385,8 @@ const interfaceJogo = {
   menuToggle: document.querySelector("#menu-toggle"),
   menu: document.querySelector("#game-menu"),
   resetSave: document.querySelector("#reset-save-button"),
+  gameOver: document.querySelector("#game-over-screen"),
+  gameOverRestart: document.querySelector("#game-over-restart-button"),
 };
 
 // ==============================
@@ -396,6 +418,7 @@ let faseJogo = "batalha";
 
 const SALAS_ATE_BOSS = 15;
 const LIMITE_SALAS_ANTES_BOSS = 30;
+const ANDAR_BOSS_FINAL = 4;
 const SALAS_POR_ACAMPAMENTO = 5;
 const PRECO_ATUALIZAR_LOJA = 5;
 const ITENS_POR_LOJA = 5;
@@ -519,14 +542,34 @@ function prepararInventario(jogador) {
     typeof jogador.reload_weapon_id === "string"
       ? jogador.reload_weapon_id
       : null;
-  const debuffs = jogador.debuffs && typeof jogador.debuffs === "object"
-    ? jogador.debuffs
-    : {};
+  jogador.reducao_recarregamento = Number.isFinite(
+    Number(jogador.reducao_recarregamento ?? jogador["reduçao_recarregamento"]),
+  )
+    ? Math.min(
+        2,
+        Math.max(
+          0,
+          Number(
+            jogador.reducao_recarregamento ?? jogador["reduçao_recarregamento"],
+          ),
+        ),
+      )
+    : 0;
+  const debuffs =
+    jogador.debuffs && typeof jogador.debuffs === "object"
+      ? jogador.debuffs
+      : {};
   jogador.debuffs = Object.fromEntries(
     Object.entries(debuffs)
       .filter(
         ([id, estado]) =>
-          ["pegajoso", "lentidao", "veneno", "sangramento", "queimando"].includes(id) &&
+          [
+            "pegajoso",
+            "lentidao",
+            "veneno",
+            "sangramento",
+            "queimando",
+          ].includes(id) &&
           estado &&
           Number(estado.turnos) > 0,
       )
@@ -536,7 +579,14 @@ function prepararInventario(jogador) {
           turnos: Math.floor(Number(estado.turnos)),
           nome: typeof estado.nome === "string" ? estado.nome : id,
           danoPorTurno: Math.max(0, Number(estado.danoPorTurno) || 0),
-          velocidade: Math.min(1, Math.max(0.3, Number(estado.velocidade) || 1)),
+          velocidade: Math.min(
+            1,
+            Math.max(0.3, Number(estado.velocidade) || 1),
+          ),
+          stacks:
+            id === "veneno"
+              ? Math.min(2, Math.max(1, Math.floor(Number(estado.stacks) || 1)))
+              : 1,
         },
       ]),
   );
@@ -606,7 +656,14 @@ function descreverItem(item) {
     return `Mágico +${item.magic_dmg} (${item.mana_custo} mana) · Físico +${item.fisico_dmg}`;
   }
 
-  return `+${item.dmg} dano`;
+  const extras = [];
+  if (item.area_dmg) extras.push(`+${item.area_dmg} dano em área`);
+  if (item.veneno_dano) {
+    extras.push(
+      `veneno ${item.veneno_dano}/turno por ${item.veneno_duration} turnos`,
+    );
+  }
+  return [`+${item.dmg} dano`, ...extras].join(" · ");
 }
 
 function renderizarInventario() {
@@ -827,7 +884,7 @@ function mostrarRotas() {
       ? "O chefe bloqueia seu caminho"
       : player.route_step >= SALAS_ATE_BOSS
         ? "O chefe está à sua espera"
-      : "Escolha seu caminho";
+        : "Escolha seu caminho";
   interfaceJogo.routeProgress.textContent =
     player.route_step >= SALAS_ATE_BOSS
       ? `Andar ${player.andar} · Sala ${player.route_step}/${LIMITE_SALAS_ANTES_BOSS} · Chefe disponível`
@@ -926,7 +983,9 @@ function escolherRota(tipo) {
     }
     player.curas_loja = player.curas_loja_max;
     player.pocoes_mana_loja = player.pocoes_mana_loja_max;
-    registrarMensagem("O acampamento restaurou toda a sua vida, mana e poções.");
+    registrarMensagem(
+      "O acampamento restaurou toda a sua vida, mana e poções.",
+    );
     mostrarRotas();
     atualizarTela();
     salvarJogo();
@@ -1047,7 +1106,8 @@ function comprarOferta(oferta) {
     !player ||
     !player.shop_offer_ids.includes(oferta.id) ||
     obterMoedasEmPrata() < oferta.preco
-  ) return;
+  )
+    return;
 
   if (oferta.id === "cura_loja") {
     player.curas_loja += 1;
@@ -1063,7 +1123,9 @@ function comprarOferta(oferta) {
   }
 
   definirMoedasDePrata(obterMoedasEmPrata() - oferta.preco);
-  player.shop_offer_ids = player.shop_offer_ids.filter((id) => id !== oferta.id);
+  player.shop_offer_ids = player.shop_offer_ids.filter(
+    (id) => id !== oferta.id,
+  );
   if (oferta.id === "cura_loja" || oferta.id === "pocao_mana_loja") {
     registrarMensagem(
       `Você comprou ${oferta.id === "cura_loja" ? "uma poção de cura" : "uma poção de mana"}.`,
@@ -1205,6 +1267,12 @@ function calcularDanoAtaque() {
   return player.dmg + arma.dmg;
 }
 
+function obterTempoRecarga(arma) {
+  const reducao =
+    player?.classe === "arqueiro" ? (player.reducao_recarregamento ?? 0) : 0;
+  return Math.max(0, Math.ceil((arma?.reload_time ?? 0) - reducao));
+}
+
 // XP necessário para o próximo nível: 100 x 1,1^(nível-1)
 function xpParaProximoNivel() {
   return Math.round(100 * 1.1 ** (player.level - 1));
@@ -1212,6 +1280,11 @@ function xpParaProximoNivel() {
 
 function iniciarJogo() {
   if (!player) return;
+
+  if (player.game_phase === "gameover") {
+    mostrarGameOver();
+    return;
+  }
 
   if (player.vida_atual <= 0) {
     player.vida_atual = player.vida_max;
@@ -1378,7 +1451,7 @@ function criarInimigo(tipoEncontro = "combate") {
     },
   };
 
-  function criarInimigoIndividual(tipo, chefe = null) {
+  function criarInimigoIndividual(tipo, chefe = null, bossId = null) {
     const base = chefe ?? modelos[tipo];
     const fatorElite = tipoEncontro === "elite" ? 1.5 : 1;
     const fatorCombate = 1.12 ** (nivel - 1);
@@ -1391,13 +1464,15 @@ function criarInimigo(tipoEncontro = "combate") {
       nome: base.nome,
       level: ehChefe ? andar : nivel + andar - 1,
       boss: ehChefe,
+      bossId,
       elite: tipoEncontro === "elite",
       vida_max: Math.round(base.vida * fatorStatus),
       vida: Math.round(base.vida * fatorStatus),
       dmg: Math.round(base.dmg * fatorStatus),
       xp: Math.round(base.xp * fatorXp * fatorElite),
       speed: Math.round(
-        (base.speed + (ehChefe ? 0 : nivel - 1) +
+        (base.speed +
+          (ehChefe ? 0 : nivel - 1) +
           (tipoEncontro === "elite" ? 2 : 0)) *
           fatorAndar,
       ),
@@ -1408,15 +1483,23 @@ function criarInimigo(tipoEncontro = "combate") {
   }
 
   if (ehChefe) {
-    const chefe = Object.values(bosses)[
-      (player.bosses_defeated ?? 0) % Object.keys(bosses).length
-    ];
-    inimigos = [criarInimigoIndividual("boss", chefe)];
+    const ordemBosses = ["minotauro", "cobrona", "dragao", "hidra"];
+    const chefeId =
+      andar === ANDAR_BOSS_FINAL
+        ? "finalboss"
+        : ordemBosses[
+            andar < ANDAR_BOSS_FINAL
+              ? andar - 1
+              : (andar - 1) % ordemBosses.length
+          ];
+    const chefe = chefeId === "finalboss" ? finalboss : bosses[chefeId];
+    inimigos = [criarInimigoIndividual("boss", chefe, chefeId)];
   } else {
     const quantidade =
       andar >= 3 || (andar >= 2 && Math.random() < 0.4) ? 2 : 1;
     inimigos = Array.from({ length: quantidade }, () => {
-      const tipo = tipo_inimigo[Math.floor(Math.random() * tipo_inimigo.length)];
+      const tipo =
+        tipo_inimigo[Math.floor(Math.random() * tipo_inimigo.length)];
       return criarInimigoIndividual(tipo);
     });
   }
@@ -1434,15 +1517,18 @@ function criarInimigo(tipoEncontro = "combate") {
     boss: "🐉",
   };
 
-  interfaceJogo.enemyArt.textContent =
-    ehChefe && inimigo.nome === "Hidra" ? "🐍" : sprites[inimigo.tipo];
+  interfaceJogo.enemyArt.textContent = ehChefe
+    ? ({ cobrona: "🐍", hidra: "🐉", minotauro: "🐂", finalboss: "👑" }[
+        inimigo.bossId
+      ] ?? sprites[inimigo.tipo])
+    : sprites[inimigo.tipo];
   interfaceJogo.encounterKind.textContent = ehChefe
     ? "CHEFE"
     : inimigos.length > 1
       ? `${inimigos.length} INIMIGOS`
       : inimigo.elite
-      ? "ELITE"
-      : "INIMIGO";
+        ? "ELITE"
+        : "INIMIGO";
   interfaceJogo.message.textContent =
     inimigos.length > 1
       ? `${inimigos.length} inimigos apareceram!`
@@ -1476,6 +1562,34 @@ const bosses = {
     prata: 150,
     ouro: 75,
   },
+  cobrona: {
+    nome: "Cobra Gigante",
+    vida: 350,
+    dmg: 50,
+    xp: 80,
+    speed: 25,
+    prata: 120,
+    ouro: 60,
+  },
+  minotauro: {
+    nome: "Minotauro",
+    vida: 450,
+    dmg: 70,
+    xp: 110,
+    speed: 18,
+    prata: 200,
+    ouro: 100,
+  },
+};
+
+const finalboss = {
+  nome: "Rei das Ruínas",
+  vida: 600,
+  dmg: 45,
+  xp: 300,
+  speed: 20,
+  prata: 350,
+  ouro: 175,
 };
 
 // ==============================
@@ -1606,7 +1720,12 @@ function atualizarTela() {
   };
   const debuffsAtivos = Object.entries(player.debuffs ?? {})
     .filter(([, estado]) => estado.turnos > 0)
-    .map(([id, estado]) => `${descricoesDebuff[id]} (${estado.turnos})`);
+    .map(
+      ([id, estado]) =>
+        `${descricoesDebuff[id]} (${estado.turnos})${
+          id === "veneno" && estado.stacks > 1 ? ` ×${estado.stacks}` : ""
+        }`,
+    );
   interfaceJogo.playerDebuffs.hidden = debuffsAtivos.length === 0;
   interfaceJogo.playerDebuffs.textContent = debuffsAtivos.length
     ? `Efeitos: ${debuffsAtivos.join(" · ")}`
@@ -1722,6 +1841,11 @@ function finalizarBatalha() {
 function novaRun() {
   if (!player) return;
 
+  interfaceJogo.gameOver.hidden = true;
+  interfaceClasses.selection.hidden = true;
+  interfaceClasses.creation.hidden = true;
+  interfaceClasses.gameContent.hidden = false;
+
   const itensIniciais = new Set(
     [armasIniciais[player.classe]?.id].filter(Boolean),
   );
@@ -1767,6 +1891,7 @@ function novaRun() {
   inimigosDerrotados = [];
 
   defendendo = false;
+  debuffsAplicadosNoTurno = new Set();
 
   batalhaAtiva = false;
   faseJogo = "rota";
@@ -1791,7 +1916,10 @@ function concluirVitoria() {
   player.reload_weapon_id = null;
   player.debuffs = {};
 
-  const xpTotal = inimigosDerrotados.reduce((total, derrotado) => total + derrotado.xp, 0);
+  const xpTotal = inimigosDerrotados.reduce(
+    (total, derrotado) => total + derrotado.xp,
+    0,
+  );
   const prataTotal = inimigosDerrotados.reduce(
     (total, derrotado) => total + derrotado.prata,
     0,
@@ -1805,7 +1933,9 @@ function concluirVitoria() {
   player.ouro += ouroTotal;
 
   for (const derrotado of inimigosDerrotados) {
-    registrarMensagem(`${derrotado.nome} derrotado. Você ganhou ${derrotado.xp} XP.`);
+    registrarMensagem(
+      `${derrotado.nome} derrotado. Você ganhou ${derrotado.xp} XP.`,
+    );
     if (derrotado.prata || derrotado.ouro) {
       registrarMensagem(
         `Você recebeu ${derrotado.prata} prata e ${derrotado.ouro} ouro.`,
@@ -1822,6 +1952,17 @@ function concluirVitoria() {
       registrarMensagem(
         `🛡️ ${derrotado.nome} dropou: ${casaco_de_couro.nome}! Equipe no inventário.`,
       );
+    }
+
+    const dropBoss = {
+      minotauro: machado_duplo_do_minotauro.id,
+      cobrona: zarabatana_de_veneno.id,
+    }[derrotado.bossId];
+    if (dropBoss && !player.inventario.includes(dropBoss)) {
+      const item = ITENS[dropBoss];
+      player.inventario.push(dropBoss);
+      player.run_drop_ids.push(dropBoss);
+      registrarMensagem(`${derrotado.nome} dropou: ${item.nome}!`);
     }
   }
 
@@ -1895,6 +2036,15 @@ function concluirVitoria() {
     }
 
     registrarMensagem(`LEVEL UP! Você chegou ao nível ${player.level}.`);
+    if (player.classe === "arqueiro") {
+      player.reducao_recarregamento = Math.min(
+        2,
+        (player.reducao_recarregamento ?? 0) + 1,
+      );
+      registrarMensagem(
+        `Suas armas de longo alcance recarregam ${player.reducao_recarregamento} turno(s) mais rápido.`,
+      );
+    }
   }
 
   interfaceJogo.message.textContent = "Vitória. Pronto para outra batalha?";
@@ -1956,31 +2106,38 @@ function obterVelocidadeEfetiva() {
   return player.speed_atual * fatorReload * Math.max(0.3, fatoresLentidao);
 }
 
-function aplicarDebuffJogador(id, nome, turnos, danoPorTurno = 0, velocidade = 1) {
+function aplicarDebuffJogador(
+  id,
+  nome,
+  turnos,
+  danoPorTurno = 0,
+  velocidade = 1,
+  stacks = 1,
+) {
   const anterior = player.debuffs[id];
   player.debuffs[id] = {
     turnos: Math.max(anterior?.turnos ?? 0, turnos),
     nome,
     danoPorTurno: Math.max(anterior?.danoPorTurno ?? 0, danoPorTurno),
     velocidade: Math.min(anterior?.velocidade ?? 1, velocidade),
+    stacks: id === "veneno" ? Math.min(2, (anterior?.stacks ?? 0) + stacks) : 1,
   };
   debuffsAplicadosNoTurno.add(id);
-  registrarMensagem(`${nome} aplicado por ${player.debuffs[id].turnos} turnos.`);
+  registrarMensagem(
+    `${nome} aplicado por ${player.debuffs[id].turnos} turnos.`,
+  );
 }
 
 function aplicarEfeitoDoInimigo(oponente) {
   const rolagem = Math.random();
   if (oponente.tipo === "slime") {
     aplicarDebuffJogador("pegajoso", "Pegajoso", 2, 0, 0.75);
+  } else if (oponente.bossId === "cobrona") {
+    aplicarDebuffJogador("veneno", "Veneno", 3, player.vida_max * 0.025, 1, 2);
   } else if (oponente.boss && oponente.nome === "Hidra" && rolagem < 0.5) {
     aplicarDebuffJogador("pegajoso", "Pegajoso", 2, 0, 0.75);
   } else if (oponente.tipo === "aranha_gigante") {
-    aplicarDebuffJogador(
-      "veneno",
-      "Veneno",
-      3,
-      player.vida_max * 0.025,
-    );
+    aplicarDebuffJogador("veneno", "Veneno", 3, player.vida_max * 0.025);
     if (Math.random() < 0.45) {
       aplicarDebuffJogador("lentidao", "Lentidão", 2, 0, 0.75);
     }
@@ -1993,13 +2150,33 @@ function aplicarEfeitoDoInimigo(oponente) {
       0.85,
     );
   } else if (oponente.boss && oponente.nome === "Dragão") {
-    aplicarDebuffJogador(
-      "queimando",
-      "Queimando",
-      3,
-      player.vida_max * 0.025,
-    );
+    aplicarDebuffJogador("queimando", "Queimando", 3, player.vida_max * 0.025);
   }
+}
+
+function processarVenenoInimigos() {
+  for (const oponente of inimigos) {
+    const veneno = oponente.debuffs?.veneno;
+    if (oponente.vida <= 0 || !veneno || veneno.turnos <= 0) continue;
+
+    const dano = Math.min(oponente.vida, veneno.danoPorTurno * veneno.stacks);
+    oponente.vida -= dano;
+    veneno.turnos -= 1;
+    registrarMensagem(
+      `O veneno causou ${Math.ceil(dano)} de dano em ${oponente.nome}.`,
+    );
+
+    if (oponente.vida <= 0 && !inimigosDerrotados.includes(oponente)) {
+      inimigosDerrotados.push(oponente);
+      registrarMensagem(`${oponente.nome} foi derrotado pelo veneno.`);
+    }
+  }
+
+  inimigo =
+    inimigos.find((oponente) => oponente.vida > 0) ??
+    inimigosDerrotados[inimigosDerrotados.length - 1] ??
+    null;
+  return inimigos.every((oponente) => oponente.vida <= 0);
 }
 
 function finalizarDerrota() {
@@ -2048,7 +2225,16 @@ function finalizarDerrota() {
     "Fim de jogo. Seu nível e curas foram mantidos, mas o dinheiro e os itens da run foram perdidos.",
   );
   finalizarBatalha();
+  mostrarGameOver();
   salvarJogo();
+}
+
+function mostrarGameOver() {
+  faseJogo = "gameover";
+  interfaceClasses.selection.hidden = true;
+  interfaceClasses.creation.hidden = true;
+  interfaceClasses.gameContent.hidden = true;
+  interfaceJogo.gameOver.hidden = false;
 }
 
 // Retorna false se o jogador morreu
@@ -2082,7 +2268,9 @@ function ataqueInimigo(oponente = inimigo) {
 
   player.vida_atual -= danoRecebido;
 
-  registrarMensagem(`${oponente.nome} causou ${Math.ceil(danoRecebido)} de dano em você.`);
+  registrarMensagem(
+    `${oponente.nome} causou ${Math.ceil(danoRecebido)} de dano em você.`,
+  );
   if (danoRecebido > 0) aplicarEfeitoDoInimigo(oponente);
 
   if (player.vida_atual <= 0) {
@@ -2108,10 +2296,15 @@ function processarDebuffsJogador() {
   for (const [id, estado] of Object.entries(player.debuffs ?? {})) {
     if (estado.turnos <= 0) continue;
     if (estado.danoPorTurno > 0) {
-      const dano = Math.min(estado.danoPorTurno, player.vida_atual);
+      const dano = Math.min(
+        estado.danoPorTurno * (estado.stacks ?? 1),
+        player.vida_atual,
+      );
       player.vida_atual -= dano;
       registrarMensagem(
-        `${estado.nome} causou ${Math.ceil(dano)} de dano (${estado.turnos} turno(s) restante(s)).`,
+        `${estado.nome} causou ${Math.ceil(dano)} de dano${
+          estado.stacks > 1 ? ` (${estado.stacks} stacks)` : ""
+        } (${estado.turnos} turno(s) restante(s)).`,
       );
     }
     if (player.vida_atual <= 0) {
@@ -2198,7 +2391,7 @@ function executarAcaoJogador(acao) {
   if (acao === "atacar") {
     const dano = calcularDanoCritico(calcularDanoAtaque());
     const arma = obterArmaAtual();
-    const tempoRecarga = Math.ceil(arma?.reload_time ?? 0);
+    const tempoRecarga = obterTempoRecarga(arma);
 
     if (tempoRecarga > 0) {
       player.reload_turns_remaining = tempoRecarga;
@@ -2211,6 +2404,33 @@ function executarAcaoJogador(acao) {
     inimigo.vida -= dano;
 
     registrarMensagem(`${inimigo.nome} recebeu ${Math.ceil(dano)} de dano.`);
+
+    if (arma?.area_dmg > 0) {
+      for (const alvo of inimigos) {
+        if (alvo.vida <= 0) continue;
+        alvo.vida -= arma.area_dmg;
+        registrarMensagem(
+          `${alvo.nome} recebeu ${Math.ceil(arma.area_dmg)} de dano em área.`,
+        );
+        if (alvo !== inimigo && alvo.vida <= 0) {
+          inimigosDerrotados.push(alvo);
+          registrarMensagem(`${alvo.nome} foi derrotado.`);
+        }
+      }
+    }
+
+    if (arma?.veneno_dano > 0 && inimigo.vida > 0) {
+      const veneno = inimigo.debuffs?.veneno;
+      inimigo.debuffs = inimigo.debuffs ?? {};
+      inimigo.debuffs.veneno = {
+        turnos: Math.max(veneno?.turnos ?? 0, arma.veneno_duration),
+        danoPorTurno: Math.max(veneno?.danoPorTurno ?? 0, arma.veneno_dano),
+        stacks: Math.min(2, (veneno?.stacks ?? 0) + 1),
+      };
+      registrarMensagem(
+        `${inimigo.nome} foi envenenado (${inimigo.debuffs.veneno.stacks} stacks).`,
+      );
+    }
 
     return inimigo.vida <= 0;
   }
@@ -2292,12 +2512,20 @@ function jogarTurno(acao) {
     defendendo = true;
   }
 
+  if (processarVenenoInimigos()) {
+    defendendo = false;
+    concluirVitoria();
+    return;
+  }
+
   debuffsAplicadosNoTurno = new Set();
   if (!processarDebuffsJogador()) return;
 
   // Quem tem mais velocidade age primeiro. Empate: o jogador.
   const velocidadeInimigo = Math.max(
-    ...inimigos.filter((oponente) => oponente.vida > 0).map((oponente) => oponente.speed),
+    ...inimigos
+      .filter((oponente) => oponente.vida > 0)
+      .map((oponente) => oponente.speed),
   );
   const inimigoPrimeiro = velocidadeInimigo > obterVelocidadeEfetiva();
 
@@ -2582,6 +2810,7 @@ interfaceJogo.continue.addEventListener("click", () => {
 // ==============================
 
 interfaceJogo.restart.addEventListener("click", reiniciarJogo);
+interfaceJogo.gameOverRestart.addEventListener("click", reiniciarJogo);
 
 interfaceJogo.resetSave.addEventListener("click", () => {
   fecharMenu();

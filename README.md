@@ -6,7 +6,7 @@
 
 ## 🎮 Jogue
 
-🔗(https://wmsl-20.github.io/RogueRPG/)
+🔗( https://wmsl-20.github.io/RogueRPG/ )
 
 # Manual do Jogador: Guia Completo de Jogabilidade
 
