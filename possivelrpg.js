@@ -394,6 +394,8 @@ const interfaceJogo = {
 // ==============================
 
 const interfaceClasses = {
+  saveMenu: document.querySelector("#save-menu"),
+  saveSlots: document.querySelector("#save-slots"),
   selection: document.querySelector("#class-selection"),
   buttons: document.querySelectorAll(".class-button"),
   creation: document.querySelector("#character-creation"),
@@ -415,6 +417,13 @@ let defendendo = false;
 let batalhaAtiva = false;
 let categoriaInventario = "arma";
 let faseJogo = "batalha";
+let slotSaveAtual = null;
+
+const QUANTIDADE_SLOTS_SAVE = 3;
+
+function chaveSave(slot) {
+  return `rpg_save_${slot}`;
+}
 
 const SALAS_ATE_BOSS = 15;
 const LIMITE_SALAS_ANTES_BOSS = 30;
@@ -2626,14 +2635,17 @@ function limparItensDaRun() {
 
 function resetarSave() {
   if (
-    !window.confirm("Tem certeza que deseja apagar o save e reiniciar o jogo?")
+    !window.confirm("Tem certeza que deseja apagar este save e voltar ao menu?")
   ) {
     return;
   }
 
-  localStorage.removeItem("rpg_save");
+  if (slotSaveAtual !== null) {
+    localStorage.removeItem(chaveSave(slotSaveAtual));
+  }
 
   player = null;
+  slotSaveAtual = null;
 
   inimigo = null;
   inimigos = [];
@@ -2654,12 +2666,13 @@ function resetarSave() {
   atualizarBotaoBatalha();
   interfaceJogo.restart.hidden = true;
 
-  interfaceClasses.selection.hidden = false;
+  interfaceClasses.saveMenu.hidden = false;
   interfaceClasses.creation.hidden = true;
   interfaceClasses.gameContent.hidden = true;
+  interfaceJogo.gameOver.hidden = true;
   interfaceJogo.playerName.textContent = "Viajante";
 
-  registrarMensagem("Save apagado. Escolha uma nova classe.");
+  renderizarMenuSaves();
 }
 
 // ==============================
@@ -2824,42 +2837,119 @@ interfaceJogo.resetSave.addEventListener("click", () => {
 // ==============================
 
 function salvarJogo() {
-  if (!player) return;
+  if (!player || slotSaveAtual === null) return;
 
   player.game_phase = faseJogo;
-  localStorage.setItem("rpg_save", JSON.stringify(player));
+  localStorage.setItem(chaveSave(slotSaveAtual), JSON.stringify(player));
 }
 
 // ==============================
-// CARREGAR SAVE
+// MENU E CARREGAMENTO DE SAVES
 // ==============================
 
-function carregarJogo() {
-  const save = localStorage.getItem("rpg_save");
+function renderizarMenuSaves() {
+  interfaceClasses.saveSlots.replaceChildren();
 
-  if (!save) {
-    interfaceClasses.selection.hidden = false;
-    interfaceClasses.creation.hidden = true;
-    interfaceClasses.gameContent.hidden = true;
+  for (let slot = 1; slot <= QUANTIDADE_SLOTS_SAVE; slot += 1) {
+    const save = localStorage.getItem(chaveSave(slot));
+    const botao = document.createElement("button");
+    const titulo = document.createElement("strong");
+    const detalhe = document.createElement("span");
 
-    interfaceJogo.attack.disabled = true;
-    interfaceJogo.defend.disabled = true;
-    interfaceJogo.heal.disabled = true;
+    botao.className = "save-slot";
+    botao.type = "button";
+    botao.dataset.saveSlot = String(slot);
 
+    titulo.textContent = `Slot ${slot}`;
+    if (save) {
+      try {
+        const dados = JSON.parse(save);
+        const nome =
+          typeof dados.nome === "string" && dados.nome.trim()
+            ? dados.nome.trim()
+            : "Viajante";
+        detalhe.textContent = `${nome} · Nível ${dados.level ?? 1}`;
+      } catch (erro) {
+        console.error(`Save inválido no slot ${slot}:`, erro);
+        detalhe.textContent = "Save inválido · selecione para remover";
+      }
+    } else {
+      detalhe.textContent = "Vazio · Novo jogo";
+    }
+
+    botao.append(titulo, detalhe);
+    interfaceClasses.saveSlots.append(botao);
+  }
+}
+
+function mostrarMenuSaves() {
+  interfaceClasses.saveMenu.hidden = false;
+  interfaceClasses.selection.hidden = true;
+  interfaceClasses.creation.hidden = true;
+  interfaceClasses.gameContent.hidden = true;
+  interfaceJogo.gameOver.hidden = true;
+  renderizarMenuSaves();
+}
+
+function iniciarNovoSave(slot) {
+  slotSaveAtual = slot;
+  player = null;
+  interfaceClasses.saveMenu.hidden = true;
+  interfaceClasses.selection.hidden = false;
+  interfaceClasses.creation.hidden = true;
+  interfaceClasses.gameContent.hidden = true;
+}
+
+function selecionarSlotSave(slot) {
+  if (!Number.isInteger(slot) || slot < 1 || slot > QUANTIDADE_SLOTS_SAVE) {
+    return;
+  }
+
+  if (localStorage.getItem(chaveSave(slot)) === null) {
+    iniciarNovoSave(slot);
+    return;
+  }
+
+  carregarJogo(slot);
+}
+
+interfaceClasses.saveSlots.addEventListener("click", (evento) => {
+  const botao = evento.target.closest("[data-save-slot]");
+  if (!botao) return;
+
+  selecionarSlotSave(Number(botao.dataset.saveSlot));
+});
+
+function migrarSaveAntigo() {
+  const saveAntigo = localStorage.getItem("rpg_save");
+  if (saveAntigo === null) return;
+
+  if (localStorage.getItem(chaveSave(1)) === null) {
+    localStorage.setItem(chaveSave(1), saveAntigo);
+  }
+
+  localStorage.removeItem("rpg_save");
+}
+
+function carregarJogo(slot) {
+  const chave = chaveSave(slot);
+  const save = localStorage.getItem(chave);
+
+  if (save === null) {
+    iniciarNovoSave(slot);
     return;
   }
 
   try {
     const dados = JSON.parse(save);
-
     if (!classes[dados.classe]) {
-      console.warn("Save antigo ou classe inválida.");
-
-      interfaceClasses.selection.hidden = false;
-
+      console.warn(`Save inválido no slot ${slot}: classe inexistente.`);
+      localStorage.removeItem(chave);
+      mostrarMenuSaves();
       return;
     }
 
+    slotSaveAtual = slot;
     player = {
       ...classes[dados.classe],
       ...dados,
@@ -2875,17 +2965,16 @@ function carregarJogo() {
 
     prepararInventario(player);
 
+    interfaceClasses.saveMenu.hidden = true;
     interfaceClasses.selection.hidden = true;
     interfaceClasses.creation.hidden = true;
     interfaceClasses.gameContent.hidden = false;
 
     iniciarJogo();
   } catch (erro) {
-    console.error("Erro ao carregar save:", erro);
-
-    localStorage.removeItem("rpg_save");
-
-    interfaceClasses.selection.hidden = false;
+    console.error(`Erro ao carregar o save do slot ${slot}:`, erro);
+    localStorage.removeItem(chave);
+    mostrarMenuSaves();
   }
 }
 
@@ -2893,4 +2982,5 @@ function carregarJogo() {
 // INICIALIZAÇÃO
 // ==============================
 
-carregarJogo();
+migrarSaveAntigo();
+mostrarMenuSaves();
