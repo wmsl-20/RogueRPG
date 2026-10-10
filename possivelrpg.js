@@ -313,11 +313,11 @@ const tipo_inimigo = [
   "slime",
   "goblin",
   "esqueleto",
-  "orc",
   "mago_inimigo",
   "aranha_gigante",
-  "troll",
 ];
+
+const tipo_inimigo_elite = ["orc", "troll", "aranha_gigante", "mago_inimigo"];
 
 // ==============================
 // INTERFACE DO JOGO
@@ -1433,10 +1433,10 @@ function criarInimigo(tipoEncontro = "combate") {
     },
     aranha_gigante: {
       nome: "Aranha Gigante",
-      vida: 120,
-      dmg: 22,
+      vida: 100,
+      dmg: 15,
       xp: 28,
-      speed: 14,
+      speed: 12,
       prata: 25,
       ouro: 6,
     },
@@ -1495,11 +1495,13 @@ function criarInimigo(tipoEncontro = "combate") {
     const chefe = chefeId === "finalboss" ? finalboss : bosses[chefeId];
     inimigos = [criarInimigoIndividual("boss", chefe, chefeId)];
   } else {
+    const tiposDisponiveis =
+      tipoEncontro === "elite" ? tipo_inimigo_elite : tipo_inimigo;
     const quantidade =
       andar >= 3 || (andar >= 2 && Math.random() < 0.4) ? 2 : 1;
     inimigos = Array.from({ length: quantidade }, () => {
       const tipo =
-        tipo_inimigo[Math.floor(Math.random() * tipo_inimigo.length)];
+        tiposDisponiveis[Math.floor(Math.random() * tiposDisponiveis.length)];
       return criarInimigoIndividual(tipo);
     });
   }
