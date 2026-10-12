@@ -12,14 +12,27 @@
 <body>
 	<div class="shell">
 		<main>
+			<div class="topbar">
+				<div class="menu-container" id="game-menu-container">
+					<button class="menu-toggle" id="menu-toggle" type="button" aria-label="Abrir menu" aria-expanded="false" aria-controls="game-menu">
+						<span></span>
+						<span></span>
+						<span></span>
+					</button>
+					<div class="menu-panel" id="game-menu" hidden>
+						<button class="menu-item" id="reset-save-button" type="button">Resetar Save</button>
+						<a class="menu-item" href="https://github.com/wmsl-20/RogueRPG" target="_blank" rel="noopener noreferrer">Tutorial de como jogar</a>
+					</div>
+				</div>
+			</div>
 
-<section class="save-menu" id="save-menu" aria-labelledby="save-menu-title" hidden>
-	<div class="heading">
-		<h1 id="save-menu-title">Escolha um save</h1>
-		<p>Continue uma aventura ou comece uma nova em um slot vazio.</p>
-	</div>
-	<div class="save-slots" id="save-slots"></div>
-</section>
+			<section class="save-menu" id="save-menu" aria-labelledby="save-menu-title" hidden>
+				<div class="heading">
+					<h1 id="save-menu-title">Escolha um save</h1>
+					<p>Continue uma aventura ou comece uma nova em um slot vazio.</p>
+				</div>
+				<div class="save-slots" id="save-slots"></div>
+			</section>
 
 			<!-- ============================== -->
 <!-- SELEÇÃO DE CLASSE -->
@@ -47,6 +60,11 @@
             <p>Mais dano e mais curas.</p>
         </button>
 
+        <button type="button" class="class-button" data-class="necromante">
+            <h2>☠️ Necromante</h2>
+            <p>Rouba almas e convoca espíritos para lutar.</p>
+        </button>
+
     </div>
 </section>
 
@@ -69,16 +87,11 @@
 	</form>
 </section>
 
-<section class="game-over-screen" id="game-over-screen" aria-labelledby="game-over-title" hidden>
-	<div class="game-over-card">
-		<span class="section-label">FIM DA JORNADA</span>
-		<h1 id="game-over-title">Game Over</h1>
-		<p>Você caiu em batalha. Escolha uma classe e crie um novo personagem para começar outra aventura.</p>
-		<button class="action primary" id="game-over-restart-button" type="button">Recomeçar</button>
-	</div>
-</section>
-
 <div id="game-content" hidden>
+    <div class="heading">
+        <h1>Aventura</h1>
+    </div>
+
 	<section class="route-panel" id="route-panel" aria-live="polite" hidden>
 		<div class="route-heading">
 			<div>
@@ -115,17 +128,6 @@
 		</section>
 
 		<section class="player-hud" aria-label="Estado do jogador">
-			<div class="menu-container" id="game-menu-container">
-				<button class="menu-toggle" id="menu-toggle" type="button" aria-label="Abrir menu" aria-expanded="false" aria-controls="game-menu">
-					<span></span>
-					<span></span>
-					<span></span>
-				</button>
-				<div class="menu-panel" id="game-menu" hidden>
-					<button class="menu-item" id="reset-save-button" type="button">Resetar Save</button>
-					<a class="menu-item" href="https://github.com/wmsl-20/RogueRPG" target="_blank" rel="noopener noreferrer">Tutorial de como jogar</a>
-				</div>
-			</div>
 			<div class="player-identity">
 				<div class="player-sprite" aria-hidden="true">⚔</div>
 				<div>
@@ -164,6 +166,11 @@
 			<button class="action secondary" id="shop-heal-button" type="button" hidden>Poção de cura (0)</button>
 			<button class="action secondary" id="mana-potion-button" type="button" hidden>Poção de Mana (2)</button>
 			<button class="action secondary" id="shop-mana-potion-button" type="button" hidden>Poção de Mana comprada (0)</button>
+			<button class="action secondary" id="warrior-skill-button" type="button" hidden>Fúria</button>
+			<button class="action secondary" id="archer-skill-button" type="button" hidden>Mil Flechas</button>
+			<button class="action secondary" id="mage-skill-button" type="button" hidden>Explosão Arcana</button>
+			<button class="action secondary" id="necromancer-steal-button" type="button" hidden>Roubar alma</button>
+			<button class="action secondary" id="necromancer-summon-button" type="button" hidden>Invocar almas</button>
 			<button class="action utility" id="inventory-button" type="button" aria-haspopup="dialog" aria-controls="inventory-modal">🎒 &nbsp; Inventário</button>
 			<button class="action utility" id="log-button" type="button" aria-haspopup="dialog" aria-controls="log-modal">📜 &nbsp; Registro</button>
 			<button class="action primary" id="continue-button" type="button" hidden>Próxima batalha &nbsp; →</button>
@@ -184,6 +191,7 @@
 				<nav class="inventory-sidebar" aria-label="Categorias do inventário">
 					<button class="inventory-category" type="button" data-inventory-category="arma" aria-pressed="true">⚔ <span>Armas</span></button>
 					<button class="inventory-category" type="button" data-inventory-category="armadura" aria-pressed="false">🛡 <span>Armaduras</span></button>
+					<button class="inventory-category" type="button" data-inventory-category="escudo" aria-pressed="false">⛨ <span>Escudos</span></button>
 					<button class="inventory-category" type="button" data-inventory-category="outros" aria-pressed="false">✦ <span>Outros</span></button>
 				</nav>
 				<div class="inventory-content" id="inventory-content" aria-live="polite"></div>
@@ -201,10 +209,10 @@
 		</section>
 	</dialog>
 
-			</div>
 		</main>
 	</div>
 	<script src="./possivelrpg.js" defer></script>
 	<script src="./viewport.js" defer></script>
+	<footer>Feito por mim enquanto eu estudava JavaScript, com ajuda de IAs </footer>
 </body>
 </html>
