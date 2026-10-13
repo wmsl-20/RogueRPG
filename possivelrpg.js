@@ -106,11 +106,11 @@ const classe_mago = {
 
 const classe_necromante = {
   classe: "necromante",
-  vida_max: 65,
+  vida_max: 75,
   vida_atual: 65,
   mana_max: 100,
   mana_atual: 100,
-  dmg: 30,
+  dmg: 35,
   defense_max: 0,
   defense_atual: 0,
   speed_max: 8,
