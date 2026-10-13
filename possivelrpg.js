@@ -501,6 +501,7 @@ const interfaceJogo = {
   continue: document.querySelector("#continue-button"),
   restart: document.querySelector("#restart-button"),
   gameOver: document.querySelector("#game-over-screen"),
+  gameOverMessage: document.querySelector("#game-over-message"),
   gameOverRestart: document.querySelector("#game-over-restart-button"),
   menuContainer: document.querySelector("#game-menu-container"),
   menuToggle: document.querySelector("#menu-toggle"),
@@ -2203,6 +2204,13 @@ function mostrarGameOver() {
   interfaceClasses.selection.hidden = true;
   interfaceClasses.creation.hidden = true;
   interfaceClasses.gameContent.hidden = true;
+  const mensagensGameOver = [
+    "Hora de começar outra jornada.",
+    "Tente mais uma vez.",
+    "Você realmente lê isso.",
+  ];
+  interfaceJogo.gameOverMessage.textContent =
+    mensagensGameOver[Math.floor(Math.random() * mensagensGameOver.length)];
   interfaceJogo.gameOver.hidden = false;
 }
 
@@ -2272,6 +2280,8 @@ function novaRun() {
 
   atualizarBotaoBatalha();
   interfaceJogo.restart.hidden = true;
+  interfaceClasses.gameContent.hidden = false;
+  interfaceJogo.gameOver.hidden = true;
 
   mostrarRotas();
   salvarJogo();
@@ -2591,7 +2601,7 @@ function finalizarDerrota() {
   atualizarTela();
   interfaceJogo.message.textContent = "Você foi derrotado.";
   registrarMensagem(
-    "Fim de jogo. Você perdeu o dinheiro e os itens da run. Recomece para criar outro personagem.",
+    "Fim de jogo. Você perdeu o dinheiro e os itens da run, mas manteve o personagem, o nível e as poções.",
   );
   finalizarBatalha();
   mostrarGameOver();
@@ -3346,7 +3356,7 @@ interfaceJogo.continue.addEventListener("click", () => {
 interfaceJogo.restart.addEventListener("click", reiniciarJogo);
 
 interfaceJogo.gameOverRestart.addEventListener("click", () => {
-  if (slotSaveAtual !== null) iniciarNovoSave(slotSaveAtual);
+  novaRun();
 });
 
 interfaceJogo.resetSave.addEventListener("click", () => {

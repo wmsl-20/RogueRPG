@@ -89,4 +89,4 @@ Os inimigos podem infligir condições negativas temporárias:
 
 ## 6. Morte e Mecânica Rogue-lite
 
-A derrota em combate encerra a jornada e exibe a tela de Game Over. Ao recomeçar, escolha uma classe e crie um novo personagem; ele substitui o personagem derrotado naquele slot. O dinheiro, os espólios da *run* e o progresso do mapa são perdidos.
+A derrota em combate exibe a tela de Game Over. Ao recomeçar, a mesma personagem inicia uma nova run: o nível e as poções são mantidos, enquanto experiência acumulada, moedas, itens da run e progresso do mapa são perdidos.
