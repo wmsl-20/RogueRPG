@@ -83,6 +83,7 @@
 			<option value="feminino">Feminino</option>
 		</select>
 
+		<a class="action utility tutorial-recommendation" href="https://github.com/wmsl-20/RogueRPG" target="_blank" rel="noopener noreferrer">⭐ Recomendado: tutorial de como jogar</a>
 		<button class="action primary" type="submit">Começar aventura</button>
 	</form>
 </section>
@@ -180,6 +181,16 @@
 			<ul class="log-list" id="battle-log" aria-live="polite"></ul>
 		</div>
 	</div>
+	</div>
+
+	<section class="game-over-screen" id="game-over-screen" aria-labelledby="game-over-title" hidden>
+		<div class="game-over-card">
+			<span class="section-label">FIM DA JORNADA</span>
+			<h1 id="game-over-title">Game Over</h1>
+			<p>Você caiu em batalha. Escolha uma classe e crie um novo personagem para começar outra aventura.</p>
+			<button class="action primary" id="game-over-restart-button" type="button">Recomeçar</button>
+		</div>
+	</section>
 
 	<dialog class="modal" id="inventory-modal" aria-labelledby="inventory-title">
 		<section class="inventory-window">

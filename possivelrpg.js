@@ -107,7 +107,7 @@ const classe_mago = {
 const classe_necromante = {
   classe: "necromante",
   vida_max: 75,
-  vida_atual: 65,
+  vida_atual: 75,
   mana_max: 100,
   mana_atual: 100,
   dmg: 35,
@@ -428,11 +428,10 @@ const tipo_inimigo = [
   "slime",
   "goblin",
   "esqueleto",
-  "orc",
   "mago_inimigo",
   "aranha_gigante",
-  "troll",
 ];
+const tipo_inimigo_elite = [...tipo_inimigo, "orc", "troll"];
 
 // ==============================
 // INTERFACE DO JOGO
@@ -501,6 +500,8 @@ const interfaceJogo = {
 
   continue: document.querySelector("#continue-button"),
   restart: document.querySelector("#restart-button"),
+  gameOver: document.querySelector("#game-over-screen"),
+  gameOverRestart: document.querySelector("#game-over-restart-button"),
   menuContainer: document.querySelector("#game-menu-container"),
   menuToggle: document.querySelector("#menu-toggle"),
   menu: document.querySelector("#game-menu"),
@@ -530,6 +531,7 @@ const interfaceClasses = {
 let inimigo = null;
 let inimigos = [];
 let inimigosDerrotados = [];
+let alvosMultishotSelecionados = new Set();
 let debuffsAplicadosNoTurno = new Set();
 let defendendo = false;
 let batalhaAtiva = false;
@@ -647,7 +649,10 @@ function prepararInventario(jogador) {
   jogador.run_drop_ids = Array.isArray(jogador.run_drop_ids)
     ? jogador.run_drop_ids.filter((id) => ITENS[id])
     : [];
-  jogador.almas = Math.min(4, Math.max(0, Math.floor(Number(jogador.almas) || 0)));
+  jogador.almas = Math.min(
+    4,
+    Math.max(0, Math.floor(Number(jogador.almas) || 0)),
+  );
   jogador.almas_invocadas = 0;
   jogador.furia_ativa = false;
   jogador.skill_cooldown_salas = Math.max(
@@ -704,14 +709,21 @@ function prepararInventario(jogador) {
     typeof jogador.reload_weapon_id === "string"
       ? jogador.reload_weapon_id
       : null;
-  const debuffs = jogador.debuffs && typeof jogador.debuffs === "object"
-    ? jogador.debuffs
-    : {};
+  const debuffs =
+    jogador.debuffs && typeof jogador.debuffs === "object"
+      ? jogador.debuffs
+      : {};
   jogador.debuffs = Object.fromEntries(
     Object.entries(debuffs)
       .filter(
         ([id, estado]) =>
-          ["pegajoso", "lentidao", "veneno", "sangramento", "queimando"].includes(id) &&
+          [
+            "pegajoso",
+            "lentidao",
+            "veneno",
+            "sangramento",
+            "queimando",
+          ].includes(id) &&
           estado &&
           Number(estado.turnos) > 0,
       )
@@ -721,7 +733,10 @@ function prepararInventario(jogador) {
           turnos: Math.floor(Number(estado.turnos)),
           nome: typeof estado.nome === "string" ? estado.nome : id,
           danoPorTurno: Math.max(0, Number(estado.danoPorTurno) || 0),
-          velocidade: Math.min(1, Math.max(0.3, Number(estado.velocidade) || 1)),
+          velocidade: Math.min(
+            1,
+            Math.max(0.3, Number(estado.velocidade) || 1),
+          ),
         },
       ]),
   );
@@ -813,9 +828,12 @@ function descreverItem(item) {
   const extras = [`+${item.dmg} dano`];
   if (item.area_dmg) extras.push(`+${item.area_dmg} dano em área`);
   if (item.veneno_dano) {
-    extras.push(`veneno ${item.veneno_dano}/turno por ${item.veneno_duration} turnos`);
+    extras.push(
+      `veneno ${item.veneno_dano}/turno por ${item.veneno_duration} turnos`,
+    );
   }
-  if (item.multi_shot) extras.push(`${item.multi_shot} disparo(s) adicional(is)`);
+  if (item.multi_shot)
+    extras.push(`${item.multi_shot} disparo(s) adicional(is)`);
   if (item.reload_time) extras.push(`recarga ${item.reload_time} turno(s)`);
   return extras.join(" · ");
 }
@@ -852,8 +870,7 @@ function renderizarInventario() {
 
     const icone = document.createElement("span");
     icone.className = "equipment-icon";
-    icone.textContent =
-      tipo === "arma" ? "⚔" : tipo === "escudo" ? "⛨" : "🛡";
+    icone.textContent = tipo === "arma" ? "⚔" : tipo === "escudo" ? "⛨" : "🛡";
     icone.setAttribute("aria-hidden", "true");
 
     const detalhes = document.createElement("div");
@@ -925,10 +942,9 @@ function renderizarInventario() {
 
   for (const item of itens) {
     const id = item.id;
-    const equipado =
-      ["arma", "armadura", "escudo"].includes(item.tipo)
-        ? player.equipado[item.tipo] === id
-        : false;
+    const equipado = ["arma", "armadura", "escudo"].includes(item.tipo)
+      ? player.equipado[item.tipo] === id
+      : false;
 
     const linha = document.createElement("div");
     linha.className = "inventory-item";
@@ -1041,7 +1057,7 @@ function mostrarRotas() {
       ? "O chefe bloqueia seu caminho"
       : player.route_step >= SALAS_ATE_BOSS
         ? "O chefe está à sua espera"
-      : "Escolha seu caminho";
+        : "Escolha seu caminho";
   interfaceJogo.routeProgress.textContent =
     player.route_step >= SALAS_ATE_BOSS
       ? `Andar ${player.andar} · Sala ${player.route_step}/${LIMITE_SALAS_ANTES_BOSS} · Chefe disponível`
@@ -1149,7 +1165,9 @@ function escolherRota(tipo) {
     }
     player.curas_loja = player.curas_loja_max;
     player.pocoes_mana_loja = player.pocoes_mana_loja_max;
-    registrarMensagem("O acampamento restaurou toda a sua vida, mana e poções.");
+    registrarMensagem(
+      "O acampamento restaurou toda a sua vida, mana e poções.",
+    );
     mostrarRotas();
     atualizarTela();
     salvarJogo();
@@ -1270,7 +1288,8 @@ function comprarOferta(oferta) {
     !player ||
     !player.shop_offer_ids.includes(oferta.id) ||
     obterMoedasEmPrata() < oferta.preco
-  ) return;
+  )
+    return;
 
   if (oferta.id === "cura_loja") {
     player.curas_loja += 1;
@@ -1286,7 +1305,9 @@ function comprarOferta(oferta) {
   }
 
   definirMoedasDePrata(obterMoedasEmPrata() - oferta.preco);
-  player.shop_offer_ids = player.shop_offer_ids.filter((id) => id !== oferta.id);
+  player.shop_offer_ids = player.shop_offer_ids.filter(
+    (id) => id !== oferta.id,
+  );
   if (oferta.id === "cura_loja" || oferta.id === "pocao_mana_loja") {
     registrarMensagem(
       `Você comprou ${oferta.id === "cura_loja" ? "uma poção de cura" : "uma poção de mana"}.`,
@@ -1356,6 +1377,7 @@ function iniciarCombate(tipoEncontro = "combate") {
   player.debuffs = {};
   player.furia_ativa = false;
   player.almas_invocadas = 0;
+  alvosMultishotSelecionados.clear();
   interfaceJogo.routePanel.hidden = true;
   document.querySelector(".game-grid").hidden = false;
   interfaceJogo.attack.disabled = false;
@@ -1449,7 +1471,12 @@ function xpParaProximoNivel() {
 }
 
 function restaurarCombateSalvo(estado = player?.combat_state) {
-  if (!player || !estado || !Array.isArray(estado.inimigos) || estado.inimigos.length === 0) {
+  if (
+    !player ||
+    !estado ||
+    !Array.isArray(estado.inimigos) ||
+    estado.inimigos.length === 0
+  ) {
     return false;
   }
 
@@ -1469,9 +1496,21 @@ function restaurarCombateSalvo(estado = player?.combat_state) {
     vida: Number(oponente.vida),
     vida_max: Number(oponente.vida_max),
   }));
+  const alvosSalvos = Array.isArray(estado.alvosMultishot)
+    ? estado.alvosMultishot
+    : [];
+  alvosMultishotSelecionados = new Set(
+    alvosSalvos.filter(
+      (id) =>
+        typeof id === "string" &&
+        inimigos.some((alvo) => alvo.id === id && alvo.vida > 0),
+    ),
+  );
   inimigosDerrotados = inimigos.filter((oponente) => oponente.vida <= 0);
   inimigo =
-    inimigos.find((oponente) => oponente.id === estado.alvoId && oponente.vida > 0) ??
+    inimigos.find(
+      (oponente) => oponente.id === estado.alvoId && oponente.vida > 0,
+    ) ??
     inimigos.find((oponente) => oponente.vida > 0) ??
     inimigos[inimigos.length - 1];
 
@@ -1510,7 +1549,9 @@ function restaurarCombateSalvo(estado = player?.combat_state) {
     inimigo.boss && inimigo.nome === "Hidra"
       ? "🐍"
       : (sprites[inimigo.tipo] ?? "👾");
-  interfaceJogo.encounterKind.textContent = inimigos.some((oponente) => oponente.boss)
+  interfaceJogo.encounterKind.textContent = inimigos.some(
+    (oponente) => oponente.boss,
+  )
     ? "CHEFE"
     : inimigos.length > 1
       ? `${inimigos.length} INIMIGOS`
@@ -1537,22 +1578,9 @@ function iniciarJogo() {
   interfaceClasses.gameContent.hidden = false;
 
   if (player.vida_atual <= 0) {
-    // Morrer é morrer: recarregar a página não restaura a vida.
     player.vida_atual = 0;
     faseJogo = "batalha";
-
-    if (!restaurarCombateSalvo(player.combat_state)) {
-      inimigo = null;
-      inimigos = [];
-      inimigosDerrotados = [];
-      batalhaAtiva = false;
-      criarInimigo("combate");
-      finalizarBatalha();
-    }
-
-    batalhaAtiva = false;
-    finalizarBatalha();
-    interfaceJogo.message.textContent = "Você foi derrotado. Recomece a run.";
+    mostrarGameOver();
     salvarJogo();
     return;
   }
@@ -1561,7 +1589,10 @@ function iniciarJogo() {
     mostrarRotas();
   } else if (player.game_phase === "loja") {
     mostrarLoja();
-  } else if (player.game_phase === "batalha" && restaurarCombateSalvo(player.combat_state)) {
+  } else if (
+    player.game_phase === "batalha" &&
+    restaurarCombateSalvo(player.combat_state)
+  ) {
     return;
   } else {
     // Compatibilidade: saves antigos não têm os detalhes do combate.
@@ -1605,6 +1636,7 @@ function escolherClasse(nomeClasse) {
   interfaceClasses.selection.hidden = true;
   interfaceClasses.creation.hidden = false;
   interfaceClasses.gameContent.hidden = true;
+  interfaceJogo.gameOver.hidden = true;
 
   interfaceClasses.characterName.value = "";
   interfaceClasses.characterGender.value = "masculino";
@@ -1740,7 +1772,8 @@ function criarInimigo(tipoEncontro = "combate") {
       dmg: Math.round(base.dmg * fatorStatus),
       xp: Math.round(base.xp * fatorXp * fatorElite),
       speed: Math.round(
-        (base.speed + (ehChefe ? 0 : nivel - 1) +
+        (base.speed +
+          (ehChefe ? 0 : nivel - 1) +
           (tipoEncontro === "elite" ? 2 : 0)) *
           fatorAndar,
       ),
@@ -1751,15 +1784,22 @@ function criarInimigo(tipoEncontro = "combate") {
   }
 
   if (ehChefe) {
-    const chefe = Object.values(bosses)[
-      (player.bosses_defeated ?? 0) % Object.keys(bosses).length
-    ];
+    const listaBosses = Object.values(bosses);
+    const bossesDerrotados = player.bosses_defeated ?? 0;
+    const indiceChefe =
+      bossesDerrotados === 0
+        ? 0
+        : 1 + ((bossesDerrotados - 1) % (listaBosses.length - 1));
+    const chefe = listaBosses[indiceChefe];
     inimigos = [criarInimigoIndividual("boss", chefe)];
   } else {
     const quantidade =
       andar >= 3 || (andar >= 2 && Math.random() < 0.4) ? 2 : 1;
     inimigos = Array.from({ length: quantidade }, () => {
-      const tipo = tipo_inimigo[Math.floor(Math.random() * tipo_inimigo.length)];
+      const tiposDisponiveis =
+        tipoEncontro === "elite" ? tipo_inimigo_elite : tipo_inimigo;
+      const tipo =
+        tiposDisponiveis[Math.floor(Math.random() * tiposDisponiveis.length)];
       return criarInimigoIndividual(tipo);
     });
   }
@@ -1788,8 +1828,8 @@ function criarInimigo(tipoEncontro = "combate") {
     : inimigos.length > 1
       ? `${inimigos.length} INIMIGOS`
       : inimigo.elite
-      ? "ELITE"
-      : "INIMIGO";
+        ? "ELITE"
+        : "INIMIGO";
   interfaceJogo.message.textContent =
     inimigos.length > 1
       ? `${inimigos.length} inimigos apareceram!`
@@ -1881,16 +1921,14 @@ function atualizarTela() {
   interfaceJogo.mageSkill.textContent = "Explosão Arcana (60 mana)";
   interfaceJogo.mageSkill.disabled = !batalhaAtiva || player.mana_atual < 60;
   interfaceJogo.necromancerSteal.hidden = !ehNecromante;
-  interfaceJogo.necromancerSteal.textContent =
-    `Roubar alma (${player.almas ?? 0}/4 · alvo abaixo de 15% HP)`;
+  interfaceJogo.necromancerSteal.textContent = `Roubar alma (${player.almas ?? 0}/4 · alvo abaixo de 25% HP)`;
   interfaceJogo.necromancerSteal.disabled =
     !batalhaAtiva ||
     player.almas >= 4 ||
-    percentualVidaAlvo >= 15 ||
+    percentualVidaAlvo >= 25 ||
     Boolean(inimigo?.alma_roubada);
   interfaceJogo.necromancerSummon.hidden = !ehNecromante;
-  interfaceJogo.necromancerSummon.textContent =
-    `Invocar almas (65 mana · 2 almas)${player.almas_invocadas ? " — invocadas" : ""}`;
+  interfaceJogo.necromancerSummon.textContent = `Invocar almas (65 mana · 2 almas)${player.almas_invocadas ? " — invocadas" : ""}`;
   interfaceJogo.necromancerSummon.disabled =
     !batalhaAtiva ||
     player.almas < 2 ||
@@ -1965,7 +2003,8 @@ function atualizarTela() {
 
   interfaceJogo.manaStat.hidden = !temMana;
   interfaceJogo.manaPotion.hidden = !temMana;
-  interfaceJogo.shopManaPotion.hidden = !temMana || player.pocoes_mana_loja <= 0;
+  interfaceJogo.shopManaPotion.hidden =
+    !temMana || player.pocoes_mana_loja <= 0;
   interfaceJogo.shopManaPotion.disabled =
     !batalhaAtiva ||
     !temMana ||
@@ -2027,6 +2066,14 @@ function atualizarTela() {
   // ------------------------------
 
   const batalhaEmGrupo = inimigos.length > 1;
+  const armaMultishot = obterArmaAtual()?.multi_shot ?? 0;
+  const idsAlvosVivos = new Set(
+    inimigos.filter((alvo) => alvo.vida > 0).map((alvo) => alvo.id),
+  );
+  alvosMultishotSelecionados = new Set(
+    [...alvosMultishotSelecionados].filter((id) => idsAlvosVivos.has(id)),
+  );
+  if (armaMultishot === 0) alvosMultishotSelecionados.clear();
   const vitality = document.querySelector(".enemy-vitality");
   interfaceJogo.enemyParty.hidden = !batalhaEmGrupo;
   interfaceJogo.enemyParty.setAttribute("role", "group");
@@ -2044,10 +2091,41 @@ function atualizarTela() {
       card.className = "enemy-party-card";
       card.classList.toggle("is-target", inimigoDoGrupo === inimigo);
       card.classList.toggle("is-defeated", inimigoDoGrupo.vida <= 0);
+      const alvoMultishotSelecionado = alvosMultishotSelecionados.has(
+        inimigoDoGrupo.id,
+      );
+      if (armaMultishot > 0) {
+        card.classList.toggle("is-multishot-target", alvoMultishotSelecionado);
+        card.setAttribute("aria-pressed", String(alvoMultishotSelecionado));
+      }
       card.disabled = inimigoDoGrupo.vida <= 0 || !batalhaAtiva;
       card.addEventListener("click", () => {
-        inimigo = inimigoDoGrupo;
-        interfaceJogo.message.textContent = `Alvo selecionado: ${inimigo.nome}.`;
+        if (armaMultishot > 0) {
+          if (alvosMultishotSelecionados.has(inimigoDoGrupo.id)) {
+            alvosMultishotSelecionados.delete(inimigoDoGrupo.id);
+            inimigo =
+              inimigos.find(
+                (alvo) =>
+                  alvo.vida > 0 && alvosMultishotSelecionados.has(alvo.id),
+              ) ?? inimigoDoGrupo;
+          } else {
+            const maximoAlvos = 1 + armaMultishot;
+            if (alvosMultishotSelecionados.size >= maximoAlvos) {
+              interfaceJogo.message.textContent = `Esta arma permite selecionar até ${maximoAlvos} alvos por ataque.`;
+              return;
+            }
+            alvosMultishotSelecionados.add(inimigoDoGrupo.id);
+            inimigo = inimigoDoGrupo;
+          }
+          const quantidadeAlvos = alvosMultishotSelecionados.size;
+          interfaceJogo.message.textContent =
+            quantidadeAlvos > 0
+              ? `${quantidadeAlvos} alvo(s) selecionado(s) para o multishot.`
+              : `Alvo selecionado: ${inimigo.nome}.`;
+        } else {
+          inimigo = inimigoDoGrupo;
+          interfaceJogo.message.textContent = `Alvo selecionado: ${inimigo.nome}.`;
+        }
         atualizarTela();
         salvarJogo();
       });
@@ -2118,6 +2196,14 @@ function finalizarBatalha() {
 
   atualizarBotaoBatalha();
   interfaceJogo.restart.hidden = true;
+}
+
+function mostrarGameOver() {
+  interfaceClasses.saveMenu.hidden = true;
+  interfaceClasses.selection.hidden = true;
+  interfaceClasses.creation.hidden = true;
+  interfaceClasses.gameContent.hidden = true;
+  interfaceJogo.gameOver.hidden = false;
 }
 
 // ==============================
@@ -2203,7 +2289,10 @@ function concluirVitoria() {
   player.reload_weapon_id = null;
   player.debuffs = {};
 
-  const xpTotal = inimigosDerrotados.reduce((total, derrotado) => total + derrotado.xp, 0);
+  const xpTotal = inimigosDerrotados.reduce(
+    (total, derrotado) => total + derrotado.xp,
+    0,
+  );
   const prataTotal = inimigosDerrotados.reduce(
     (total, derrotado) => total + derrotado.prata,
     0,
@@ -2218,7 +2307,9 @@ function concluirVitoria() {
   definirMoedasDePrata(obterMoedasEmPrata());
 
   for (const derrotado of inimigosDerrotados) {
-    registrarMensagem(`${derrotado.nome} derrotado. Você ganhou ${derrotado.xp} XP.`);
+    registrarMensagem(
+      `${derrotado.nome} derrotado. Você ganhou ${derrotado.xp} XP.`,
+    );
     if (derrotado.prata || derrotado.ouro) {
       registrarMensagem(
         `Você recebeu ${derrotado.prata} prata e ${derrotado.ouro} ouro.`,
@@ -2404,7 +2495,13 @@ function obterVelocidadeEfetiva() {
   return velocidade * fatorReload * Math.max(0.3, fatoresLentidao);
 }
 
-function aplicarDebuffJogador(id, nome, turnos, danoPorTurno = 0, velocidade = 1) {
+function aplicarDebuffJogador(
+  id,
+  nome,
+  turnos,
+  danoPorTurno = 0,
+  velocidade = 1,
+) {
   const anterior = player.debuffs[id];
   player.debuffs[id] = {
     turnos: Math.max(anterior?.turnos ?? 0, turnos),
@@ -2413,7 +2510,9 @@ function aplicarDebuffJogador(id, nome, turnos, danoPorTurno = 0, velocidade = 1
     velocidade: Math.min(anterior?.velocidade ?? 1, velocidade),
   };
   debuffsAplicadosNoTurno.add(id);
-  registrarMensagem(`${nome} aplicado por ${player.debuffs[id].turnos} turnos.`);
+  registrarMensagem(
+    `${nome} aplicado por ${player.debuffs[id].turnos} turnos.`,
+  );
 }
 
 function aplicarEfeitoDoInimigo(oponente) {
@@ -2423,12 +2522,7 @@ function aplicarEfeitoDoInimigo(oponente) {
   } else if (oponente.boss && oponente.nome === "Hidra" && rolagem < 0.5) {
     aplicarDebuffJogador("pegajoso", "Pegajoso", 2, 0, 0.75);
   } else if (oponente.tipo === "aranha_gigante") {
-    aplicarDebuffJogador(
-      "veneno",
-      "Veneno",
-      3,
-      player.vida_max * 0.025,
-    );
+    aplicarDebuffJogador("veneno", "Veneno", 3, player.vida_max * 0.025);
     if (Math.random() < 0.45) {
       aplicarDebuffJogador("lentidao", "Lentidão", 2, 0, 0.75);
     }
@@ -2441,12 +2535,7 @@ function aplicarEfeitoDoInimigo(oponente) {
       0.85,
     );
   } else if (oponente.boss && oponente.nome === "Dragão") {
-    aplicarDebuffJogador(
-      "queimando",
-      "Queimando",
-      3,
-      player.vida_max * 0.025,
-    );
+    aplicarDebuffJogador("queimando", "Queimando", 3, player.vida_max * 0.025);
   }
 }
 
@@ -2502,9 +2591,10 @@ function finalizarDerrota() {
   atualizarTela();
   interfaceJogo.message.textContent = "Você foi derrotado.";
   registrarMensagem(
-    "Fim de jogo. Seu nível e curas foram mantidos, mas o dinheiro e os itens da run foram perdidos.",
+    "Fim de jogo. Você perdeu o dinheiro e os itens da run. Recomece para criar outro personagem.",
   );
   finalizarBatalha();
+  mostrarGameOver();
   salvarJogo();
 }
 
@@ -2547,7 +2637,9 @@ function ataqueInimigo(oponente = inimigo) {
 
   player.vida_atual -= danoRecebido;
 
-  registrarMensagem(`${oponente.nome} causou ${Math.ceil(danoRecebido)} de dano em você.`);
+  registrarMensagem(
+    `${oponente.nome} causou ${Math.ceil(danoRecebido)} de dano em você.`,
+  );
   if (danoRecebido > 0) aplicarEfeitoDoInimigo(oponente);
 
   if (player.vida_atual <= 0) {
@@ -2608,7 +2700,9 @@ function registrarDerrotaInimigo(alvo) {
 function causarDanoInimigo(alvo, dano, origem = "") {
   if (!alvo || alvo.vida <= 0) return;
   alvo.vida = Math.max(0, alvo.vida - dano);
-  registrarMensagem(`${alvo.nome} recebeu ${Math.ceil(dano)} de dano${origem}.`);
+  registrarMensagem(
+    `${alvo.nome} recebeu ${Math.ceil(dano)} de dano${origem}.`,
+  );
   registrarDerrotaInimigo(alvo);
 }
 
@@ -2761,19 +2855,21 @@ function executarAcaoJogador(acao) {
     }
 
     const tiros = 1 + (arma?.multi_shot ?? 0);
+    const alvosSelecionados = [...alvosMultishotSelecionados]
+      .map((id) => inimigos.find((alvo) => alvo.id === id))
+      .filter((alvo) => alvo?.vida > 0);
+    const alvosDoAtaque =
+      alvosSelecionados.length > 0 ? alvosSelecionados : [inimigo];
     for (let tiro = 0; tiro < tiros; tiro += 1) {
-      const vivos = inimigos.filter((alvo) => alvo.vida > 0);
+      const vivos = alvosDoAtaque.filter((alvo) => alvo.vida > 0);
       if (vivos.length === 0) break;
-      const ordenados = [
-        inimigo,
-        ...vivos.filter((alvo) => alvo !== inimigo),
-      ].filter((alvo) => alvo.vida > 0);
       causarDanoInimigo(
-        ordenados[tiro % ordenados.length],
+        vivos[tiro % vivos.length],
         calcularDanoCritico(danoBase),
         tiros > 1 ? " (multishot)" : "",
       );
     }
+    alvosMultishotSelecionados.clear();
 
     if (arma?.area_dmg > 0) {
       for (const alvo of inimigos) {
@@ -2893,9 +2989,9 @@ function jogarTurno(acao) {
       registrarMensagem("Você já alcançou o limite de 4 almas.");
       return;
     }
-    if (inimigo.vida / inimigo.vida_max >= 0.15) {
+    if (inimigo.vida / inimigo.vida_max >= 0.25) {
       registrarMensagem(
-        "Só é possível roubar a alma quando o inimigo está com menos de 15% de vida.",
+        "Só é possível roubar a alma quando o inimigo está com menos de 25% de vida.",
       );
       return;
     }
@@ -2930,9 +3026,12 @@ function jogarTurno(acao) {
 
   // Quem tem mais velocidade age primeiro. Empate: o jogador.
   const velocidadeInimigo = Math.max(
-    ...inimigos.filter((oponente) => oponente.vida > 0).map((oponente) => oponente.speed),
+    ...inimigos
+      .filter((oponente) => oponente.vida > 0)
+      .map((oponente) => oponente.speed),
   );
-  const inimigoPrimeiro = velocidadeInimigo > obterVelocidadeEfetiva();
+  const inimigoPrimeiro =
+    acao !== "roubar_alma" && velocidadeInimigo > obterVelocidadeEfetiva();
 
   if (inimigoPrimeiro) {
     registrarMensagem("Os inimigos mais rápidos atacaram primeiro.");
@@ -2975,7 +3074,10 @@ function jogarTurno(acao) {
 
   finalizarDuracaoDebuffs();
 
-  if (!["atacar", "mil_flechas"].includes(acao) && player.reload_turns_remaining > 0) {
+  if (
+    !["atacar", "mil_flechas"].includes(acao) &&
+    player.reload_turns_remaining > 0
+  ) {
     player.reload_turns_remaining -= 1;
     if (player.reload_turns_remaining === 0) {
       player.reload_weapon_id = null;
@@ -3243,6 +3345,10 @@ interfaceJogo.continue.addEventListener("click", () => {
 
 interfaceJogo.restart.addEventListener("click", reiniciarJogo);
 
+interfaceJogo.gameOverRestart.addEventListener("click", () => {
+  if (slotSaveAtual !== null) iniciarNovoSave(slotSaveAtual);
+});
+
 interfaceJogo.resetSave.addEventListener("click", () => {
   fecharMenu();
   resetarSave();
@@ -3261,6 +3367,7 @@ function salvarJogo() {
       tipo: tipoEncontroAtual,
       ativa: batalhaAtiva,
       alvoId: inimigo?.id ?? null,
+      alvosMultishot: [...alvosMultishotSelecionados],
       inimigos: inimigos.map((oponente) => ({ ...oponente })),
     };
   } else {
@@ -3309,6 +3416,7 @@ function mostrarMenuSaves() {
   interfaceClasses.selection.hidden = true;
   interfaceClasses.creation.hidden = true;
   interfaceClasses.gameContent.hidden = true;
+  interfaceJogo.gameOver.hidden = true;
   renderizarMenuSaves();
 }
 
@@ -3319,6 +3427,7 @@ function iniciarNovoSave(slot) {
   interfaceClasses.selection.hidden = false;
   interfaceClasses.creation.hidden = true;
   interfaceClasses.gameContent.hidden = true;
+  interfaceJogo.gameOver.hidden = true;
 }
 
 function carregarJogo(slot) {

@@ -70,8 +70,10 @@ main { display: flex; flex-direction: column; min-width: 0; }
 :root[data-device="mobile"][data-orientation="landscape"] .character-form button { grid-column: 1 / -1; }
 :root[data-device] .modal { position: fixed; inset: 0 0 auto; margin: 0 auto; max-height: none; overflow: visible; }
 :root[data-device] .inventory-window, :root[data-device] .log-window { max-height: none; overflow: visible; }
+:root[data-device] .log-window { max-height: min(68dvh, 540px); overflow: hidden; }
 :root[data-device] .inventory-layout { min-height: 0; }
 :root[data-device] .inventory-content, :root[data-device] .log-modal-list { max-height: none; overflow: visible; }
+:root[data-device] .log-modal-list { max-height: min(48dvh, 380px); overflow: auto; }
 :root[data-device] .inventory-content { padding: 10px; }
 .equipped-section { margin-bottom: 8px; }
 .items-heading { margin-top: 8px; }
