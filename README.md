@@ -1,92 +1,274 @@
-# Possível RPG
+# RogueRPG
 
-> ⚠️ **O projeto ainda está no início do desenvolvimento.**
->
-> Este RPG está sendo desenvolvido como um projeto de estudo enquanto aprendo JavaScript. Muitas mecânicas ainda estão em desenvolvimento e podem sofrer alterações, ser balanceadas ou até desaparecer porque aparentemente criar um jogo exige fazer 47 sistemas diferentes ao mesmo tempo.
+Um RPG de navegador com elementos roguelite, desenvolvido em JavaScript.
 
-## 🎮 Jogue
+**Versão:** 2.3.5
 
-🔗(https://wmsl-20.github.io/RogueRPG/)
+**Jogar:** https://wmsl-20.github.io/RogueRPG/
 
+## 1. Como começar
 
-# Manual do Jogador: Guia Completo de Jogabilidade
+1. Escolha um dos quatro slots de save.
+2. Selecione uma classe.
+3. Defina o nome e o gênero do personagem.
+4. Comece a aventura e escolha suas rotas.
+5. Derrote inimigos, obtenha experiência e moedas, encontre equipamentos e prepare-se para os chefes.
 
-Este documento apresenta as diretrizes formais e a estrutura de funcionamento atualizada do jogo RogueRPG. O objetivo deste manual é detalhar os sistemas de classes (incluindo o Necromante), mecânicas de combate com habilidades ativas, escudos, progressão de atributos, exploração de mapas e gestão de inventário.
+O progresso é salvo no armazenamento local do navegador. Os saves são independentes, mas não são sincronizados automaticamente entre navegadores ou dispositivos.
 
----
+## 2. Classes disponíveis
 
-## 1. Criação de Personagem e Classes
+Cada classe possui atributos, resistências e habilidades próprias.
 
-Ao iniciar uma nova aventura num slot de save, deve escolher a sua classe e definir o nome e o género da sua personagem. Cada classe possui atributos de base específicos e dinâmicas de jogo distintas:
+### ⚔️ Guerreiro
 
-* **⚔️ Guerreiro:**
-  * **Atributos Iniciais:** 120 de Vida Máxima, 18 de Dano Base, 10 de Defesa, 10 de Velocidade, 5% de Chance Crítica (Multiplicador 2x) e 1 Cura Base.
-  * **Habilidade Ativa (Fúria):** Pode ser ativada quando a vida desce até 10% ou menos (o limite de ativação aumenta 0,4% por nível). Enquanto ativa até ao fim do combate, dobra o dano e a velocidade, mas reduz a defesa pela metade.
-* **🏹 Arqueiro:**
-  * **Atributos Iniciais:** 100 de Vida Máxima, 22 de Dano Base, 6 de Defesa, 15 de Velocidade, 20% de Chance Crítica (Multiplicador 2x) e 2 Curas Base.
-  * **Habilidade Ativa (Mil Flechas):** Dispara 4 acertos críticos em todos os inimigos presentes no combate. Possui um tempo de recarga de 6 salas. Ao subir de nível, ganha reduções permanentes no tempo de recarga de armas de longo alcance.
-* **🔮 Mago:**
-  * **Atributos Iniciais:** 75 de Vida Máxima, 100 de Mana Máxima, 26 de Dano Base, 3 de Defesa, 8 de Velocidade, 10% de Chance Crítica (Multiplicador 2.5x), 3 Curas Base e 2 Poções de Mana.
-  * **Habilidade Ativa (Explosão Arcana):** Custa 60 de Mana e desfere um dano crítico triplicado em todos os inimigos da batalha.
-* **☠️ Necromante:**
-  * **Atributos Iniciais:** 75 de Vida Máxima, 100 de Mana Máxima, 35 de Dano Base, 0 de Defesa, 8 de Velocidade, 10% de Chance Crítica (Multiplicador 2.5x), 2 Curas Base e 2 Poções de Mana.
-  * **Habilidade Ativa 1 (Roubar Alma):** Derrota instantaneamente o inimigo alvo caso este esteja com menos de 25% de vida. A habilidade tem prioridade no turno, antes dos ataques dos inimigos, e permite acumular até 4 almas.
-  * **Habilidade Ativa 2 (Invocar Almas):** Custa 65 de Mana e 2 almas guardadas para invocar duas entidades espirituais que atacam os alvos em conjunto com o jogador em todos os turnos até ao fim do combate.
+Especialista em sobrevivência e combate físico.
 
----
+**Atributos iniciais**
+- Vida: 120
+- Dano base: 18
+- Resistência física: 10%
+- Resistência mágica: 0%
+- Velocidade: 10
+- Chance crítica: 5%
+- Multiplicador crítico: 2x
+- Curas básicas: 1
 
-## 2. Sistema de Múltiplos Saves (Slots)
+**Habilidade: Fúria**
 
-O jogo conta com **4 slots de gravação independentes** no armazenamento local do navegador. 
-* É possível gerir diferentes partidas em simultâneo.
-* Caso feche o navegador ou atualize a página a meio de um combate, o estado da batalha, os inimigos restantes e os alvos selecionados são restaurados automaticamente ao reabrir o save.
+Dobra o dano, a velocidade e a chance crítica enquanto reduz pela metade as resistências positivas. A habilidade dura até o fim do combate e pode ser ativada quando a vida está em 10% ou menos, com o limite aumentando conforme o nível.
 
----
+### 🏹 Arqueiro
 
-## 3. Estrutura do Mapa e Progressão por Andares
+Especialista em velocidade, acertos críticos e armas de longo alcance.
 
-A progressão do jogo é dividida em **Andares**, contendo salas de transição até alcançar o confronto final com os chefes (como o Minotauro, o Dragão ou a Hidra).
+**Atributos iniciais**
+- Vida: 100
+- Dano base: 22
+- Resistência física: 6%
+- Resistência mágica: 0%
+- Velocidade: 15
+- Chance crítica: 20%
+- Multiplicador crítico: 2x
+- Curas básicas: 2
 
-### 3.1 Tipos de Salas (Rotas)
-* **⚔️ Combate:** Encontro padrão com inimigos para obtenção de Experiência (XP) e Moedas.
-* **⚔️ Elite:** Combate de maior dificuldade contra inimigos fortalecidos e com recompensas superiores. Orcs e trolls só aparecem em encontros de elite.
-* **◆ Loja:** Zona comercial para adquirir equipamentos, escudos e consumíveis. O custo para atualizar o stock duplica progressivamente a cada uso na mesma visita.
-* **🔥 Acampamento:** Ponto de descanso a cada 5 salas que restaura 100% da Vida, Mana e a carga dos consumíveis básicos.
-* **☠️ Chefe (Boss):** Disponível a partir da 15ª sala, tornando-se obrigatório ao atingir a 30ª sala. O Minotauro aparece exclusivamente como o primeiro chefe.
+**Habilidade: Mil Flechas**
 
-### 3.2 Transição de Andar e Experiência
-* Ao derrotar o Chefe, desce para o andar seguinte e os inimigos ganham escalonamento de atributos.
-* O ganho de XP acumula o excedente ao subir de nível, permitindo saltar múltiplos níveis de uma só vez caso obtenha grande quantidade de XP.
+Realiza quatro acertos críticos em cada inimigo vivo do combate. Possui recarga de seis salas. Ao subir de nível, o Arqueiro também melhora a recarga das armas de longo alcance, até o limite previsto pelo sistema.
 
----
+### 🔮 Mago
 
-## 4. Sistema de Combate, Escudos e Regras de Turno
+Especialista em dano mágico e gerenciamento de mana.
 
-### 4.1 Ordem de Ação e Velocidade Efetiva
-A ordem de atuação no turno depende da **Velocidade Efetiva** (afetada por penalidades de armaduras, escudos pesados, recargas de armas e efeitos de lentidão). Se a velocidade do inimigo for superior à do jogador, este atacará primeiro.
+**Atributos iniciais**
+- Vida: 80
+- Mana: 100
+- Dano base: 26
+- Resistência física: 3%
+- Resistência mágica: 8%
+- Velocidade: 8
+- Chance crítica: 10%
+- Multiplicador crítico: 2,5x
+- Curas básicas: 3
+- Poções básicas de mana: 2
 
-### 4.2 Equipamento de Escudos
-Além de Armas e Armaduras, o jogador pode equipar **Escudos** (como o *Escudo de Madeira*, *Escudo de Ferro* ou o *Escudo do Minotauro*). Os escudos concedem Defesa adicional e possuem uma **chance percentual de bloquear totalmente o dano recebido**, aplicando penalidades de velocidade se forem muito pesados.
+**Habilidade: Explosão Arcana**
 
-### 4.3 Ações Disponíveis
-* **Atacar:** Executa um golpe físico ou mágico. Em combates com vários inimigos, armas com disparos múltiplos (*Multishot*) permitem selecionar alvos; os disparos são distribuídos entre os alvos escolhidos. Armas de longo alcance exigem turnos de recarga (*Reload*).
-* **Defender:** Reduz o dano recebido pela metade ou anula-o totalmente caso a velocidade efetiva supere a do inimigo.
-* **Curar / Usar Poções:** Recuperam vida ou mana. O uso de poções de mana em classes mágicas aplica uma penalidade temporária de -30% no dano mágico durante os 3 turnos seguintes.
-* **Fugir:** Permite abandonar o combate sem receber recompensas.
+Consome 60 de mana e causa dano mágico crítico a todos os inimigos vivos. A habilidade utiliza o multiplicador crítico do personagem e um multiplicador adicional de 3x.
 
----
+### ☠️ Necromante
 
-## 5. Efeitos de Status (Debuffs)
+Especialista em dano mágico, execução de inimigos enfraquecidos e invocação de espíritos.
 
-Os inimigos podem infligir condições negativas temporárias:
-* **Pegajoso:** Reduz a velocidade de ação.
-* **Lentidão:** Reduz a velocidade em 25%.
-* **Veneno:** Causa dano contínuo por turno baseado na vida máxima.
-* **Sangramento:** Causa dano contínuo e penaliza a velocidade.
-* **Queimando:** Causa dano contínuo por turno.
+**Atributos iniciais**
+- Vida: 75
+- Mana: 100
+- Dano base: 35
+- Resistência física: 0%
+- Resistência mágica: 12%
+- Velocidade: 8
+- Chance crítica: 10%
+- Multiplicador crítico: 2,5x
+- Curas básicas: 2
+- Poções básicas de mana: 2
 
----
+**Habilidade 1: Roubar Alma**
 
-## 6. Morte e Mecânica Rogue-lite
+Derrota instantaneamente o inimigo-alvo quando ele está abaixo de 25% da vida. Cada execução concede uma alma, até o limite de quatro.
 
-A derrota em combate exibe a tela de Game Over. Ao recomeçar, a mesma personagem inicia uma nova run: o nível e as poções são mantidos, enquanto experiência acumulada, moedas, itens da run e progresso do mapa são perdidos.
+**Habilidade 2: Invocar Almas**
+
+Consome 65 de mana e duas almas para invocar dois espíritos. Eles atacam os inimigos junto com o jogador até o fim do combate.
+
+## 3. Atributos e resistências
+
+O sistema de defesa utiliza resistências percentuais separadas:
+
+- **Resistência física:** reduz o dano de ataques físicos.
+- **Resistência mágica:** reduz o dano de ataques mágicos.
+- **Vulnerabilidade:** resistência negativa, que aumenta o dano recebido.
+
+As resistências do personagem podem ser combinadas com os bônus de armaduras e escudos equipados.
+
+O sistema limita as resistências entre -50% e 75%.
+
+Exemplos:
+- 20% de resistência reduz um dano de 100 para 80.
+- 50% de resistência reduz um dano de 100 para 50.
+- -15% de resistência aumenta um dano de 100 para 115.
+
+Ao subir de nível, o personagem aumenta ambas as resistências em um ponto, além de receber outros bônus.
+
+## 4. Armas, armaduras e escudos
+
+O inventário permite consultar, equipar e desequipar equipamentos.
+
+### Armas
+
+As armas aumentam o dano e podem oferecer propriedades especiais, como ataques múltiplos, dano em área ou efeitos de veneno.
+
+Algumas armas são vinculadas a uma classe. Usar uma arma vinculada a outra classe reduz seu dano em 25%.
+
+### Armaduras
+
+Podem oferecer resistência física, resistência mágica, bônus de mana, regeneração de mana ou penalidades de velocidade.
+
+### Escudos
+
+Concedem resistências e podem reduzir a velocidade do personagem. Alguns também possuem chance de bloquear completamente ataques físicos.
+
+O bloqueio aleatório dos escudos não se aplica a ataques mágicos.
+
+### Equipamentos especiais
+
+O Minotauro pode conceder equipamentos exclusivos, como seu machado duplo, sua armadura e seu escudo.
+
+## 5. Sistema de combate
+
+O jogador pode realizar diferentes ações durante uma batalha.
+
+### Atacar
+
+Executa um ataque utilizando o dano do personagem e os bônus da arma. O dano final depende do tipo de ataque e da resistência do inimigo.
+
+Armas de longo alcance podem exigir recarga. Armas com múltiplos disparos permitem distribuir os tiros entre alvos selecionados.
+
+### Defender
+
+Reduz o dano recebido pela metade. Se a velocidade efetiva do personagem for superior à do atacante, o dano pode ser anulado.
+
+Durante a recarga de uma arma, essa vantagem de velocidade é limitada: o dano é reduzido pela metade, em vez de ser anulado.
+
+### Curar
+
+As curas básicas recuperam 50% da diferença entre a vida atual e a vida máxima.
+
+Poções compradas na loja também podem ser utilizadas durante o combate e recuperam até 50% da vida máxima.
+
+### Usar poção de mana
+
+Recupera até 70% da mana máxima. Em contrapartida, reduz o dano mágico em 30% durante o período inicial do efeito, com a penalidade diminuindo nos turnos seguintes.
+
+### Habilidades especiais
+
+As habilidades variam conforme a classe e podem consumir mana, utilizar recargas ou depender de condições específicas.
+
+### Fugir
+
+Não existe uma ação de fuga disponível na interface atual; a progressão é feita por meio das rotas da aventura.
+
+## 6. Inimigos e efeitos negativos
+
+Os inimigos possuem atributos próprios, incluindo vida, dano, velocidade, experiência, recompensas e resistências.
+
+Alguns exemplos:
+- **Slime:** vulnerável a dano mágico.
+- **Zumbi:** possui resistência física.
+- **Esqueleto:** vulnerável a dano físico e resistente a dano mágico.
+- **Orc:** possui resistência física elevada.
+- **Mago Inimigo:** utiliza dano mágico.
+- **Troll:** possui resistências físicas e mágicas.
+
+Os inimigos também podem aplicar efeitos negativos:
+
+- **Pegajoso:** reduz a velocidade de ação.
+- **Lentidão:** reduz a velocidade.
+- **Veneno:** causa dano ao longo dos turnos.
+- **Sangramento:** causa dano contínuo e reduz a velocidade.
+- **Queimando:** causa dano contínuo.
+
+As resistências e os efeitos podem variar de acordo com o inimigo e o encontro.
+
+## 7. Rotas e exploração
+
+A aventura é dividida em andares, cada um com salas e escolhas de rota.
+
+### ⚔️ Combate
+
+Enfrente inimigos comuns para obter experiência e moedas.
+
+### ⚔️ Elite
+
+Enfrente inimigos mais fortes em troca de recompensas maiores. Orcs e trolls aparecem nos encontros de elite.
+
+### ◆ Loja
+
+Compre armas, armaduras, escudos e consumíveis. Cada visita possui um estoque limitado, que pode ser atualizado mediante pagamento. O custo da atualização dobra a cada uso na mesma visita.
+
+### 🔥 Acampamento
+
+Recupera toda a vida, a mana e as cargas dos consumíveis. Normalmente fica disponível a cada cinco salas.
+
+### ☠️ Chefe
+
+O chefe fica disponível após a progressão inicial do andar e se torna obrigatório ao atingir a sala 30. É possível adiar o confronto enquanto houver rotas disponíveis.
+
+O Minotauro é o primeiro chefe. Outros chefes incluem o Dragão e a Hidra.
+
+Ao derrotar um chefe, o personagem avança para o próximo andar, onde os inimigos ficam mais fortes.
+
+## 8. Experiência e evolução
+
+Os inimigos derrotados concedem experiência e moedas.
+
+Ao subir de nível, o personagem recebe:
+- Aumento de 12% na vida máxima.
+- Aumento de 12% no dano base.
+- +1 de resistência física e mágica.
+- +1 de velocidade.
+- Recuperação de vida e recursos.
+- Uma cura adicional a cada três níveis.
+- Para classes mágicas, +10 de mana máxima por nível e uma poção adicional a cada três níveis.
+
+O excesso de experiência é preservado, permitindo subir vários níveis após uma recompensa grande.
+
+## 9. Morte e progressão roguelite
+
+Quando a vida chega a zero, a aventura termina e aparece a tela de Game Over.
+
+Ao recomeçar a run:
+- O nível e a experiência acumulada são mantidos.
+- As curas e poções básicas disponíveis são mantidas, respeitando seus limites.
+- As moedas são perdidas.
+- Os equipamentos e itens obtidos durante a run são perdidos.
+- O progresso do mapa e do andar é reiniciado.
+
+Itens que não pertencem à run atual e o equipamento inicial da classe são preservados de acordo com as regras do inventário.
+
+## 10. Saves e continuidade
+
+O jogo oferece quatro slots independentes de gravação no armazenamento local do navegador.
+
+O sistema salva o progresso da aventura, incluindo a fase atual, a rota, o inventário e o estado do combate.
+
+Se a página for fechada durante uma batalha, o jogo tenta restaurar o encontro salvo ao reabrir o slot.
+
+**Atenção:** limpar os dados do navegador ou utilizar outro dispositivo pode impedir o acesso aos saves locais.
+
+## 11. Sobre o projeto
+
+RogueRPG é um projeto de estudo desenvolvido enquanto seu criador aprende JavaScript. As mecânicas podem mudar conforme o desenvolvimento, a correção de bugs e o balanceamento.
+
+Problemas, inconsistências e sugestões podem ser acompanhados pelo repositório oficial:
+
+https://github.com/wmsl-20/RogueRPG
