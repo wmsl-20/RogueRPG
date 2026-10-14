@@ -47,22 +47,22 @@
 
         <button type="button" class="class-button" data-class="guerreiro">
             <h2>⚔️ Guerreiro</h2>
-            <p>Mais vida e defesa.</p>
+			<p>Mais vida. Resistências base: físico 10%, mágico 0%.</p>
         </button>
 
         <button type="button" class="class-button" data-class="arqueiro">
             <h2>🏹 Arqueiro</h2>
-            <p>Mais velocidade e chance de crítico.</p>
+			<p>Mais velocidade e crítico. Resistências base: físico 6%, mágico 0%.</p>
         </button>
 
         <button type="button" class="class-button" data-class="mago">
             <h2>🔮 Mago</h2>
-            <p>Mais dano e mais curas.</p>
+			<p>Mais dano e curas. Resistências base: físico 3%, mágico 8%.</p>
         </button>
 
         <button type="button" class="class-button" data-class="necromante">
             <h2>☠️ Necromante</h2>
-            <p>Rouba almas e convoca espíritos para lutar.</p>
+			<p>Rouba almas e invoca espíritos. Resistências base: físico 0%, mágico 12%.</p>
         </button>
 
     </div>
@@ -124,6 +124,7 @@
 					<div class="health-copy"><span>VIDA</span><span id="enemy-health">— / —</span></div>
 					<div class="bar" role="progressbar" aria-label="Vida do inimigo" aria-valuemin="0" aria-valuemax="100"><div class="bar-fill enemy-fill" id="enemy-health-bar"></div></div>
 				</div>
+				<p class="enemy-resistances" id="enemy-resistances"></p>
 			</div>
 			<div class="message" id="battle-message" aria-live="polite">Um inimigo apareceu.</div>
 		</section>
@@ -155,6 +156,7 @@
 					<div class="stat-note" id="player-mana-effect" hidden></div>
 				</div>
 				<div class="stat-note player-debuffs" id="player-debuffs" hidden></div>
+				<div class="stat-note player-resistances" id="player-resistances"></div>
 			</div>
 			<span id="player-health-copy" hidden></span>
 			<div id="player-health-bar-copy" hidden></div>

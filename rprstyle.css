@@ -714,6 +714,13 @@ h1, .modal-header h2 {
 .enemy-stage .level { color: #c7cde0; letter-spacing: .08em; }
 
 .enemy-vitality { width: min(300px, 76%); margin-top: 8px; }
+.enemy-resistances {
+    width: min(360px, 90%);
+    margin: 0;
+    color: var(--muted);
+    font-size: 12px;
+    line-height: 1.4;
+}
 
 .health-copy {
     margin: 0 0 7px;
@@ -830,6 +837,8 @@ h1, .modal-header h2 {
 
 .stat-heading span:last-child { color: var(--ink); font-size: 11px; }
 .stat-note { margin-top: 7px; color: #8fb5ff; font-size: 11px; }
+
+.player-resistances { color: var(--muted); line-height: 1.4; }
 
 .actions {
     display: grid;
@@ -1018,6 +1027,7 @@ h1, .modal-header h2 {
     font-weight: 500;
     letter-spacing: .08em;
 }
+.weapon-class-heading { margin-top: 14px; }
 
 .equipment-slot {
     display: flex;
@@ -1289,6 +1299,7 @@ h1, .modal-header h2 {
 .enemy-party-card.is-defeated { opacity: .42; transform: scale(.97); cursor: default; }
 .enemy-party-card strong { color: var(--gold-bright); font-size: 12px; }
 .enemy-party-card > span:not(.enemy-party-health) { color: var(--muted); font-size: 11px; }
+.enemy-party-card .enemy-resistance-copy { overflow-wrap: anywhere; font-size: 10px; line-height: 1.4; }
 .enemy-party-health { display: block; height: 6px; overflow: hidden; border-radius: 5px; background: #251b20; }
 .enemy-party-health > span { display: block; height: 100%; border-radius: inherit; background: var(--red); transition: width .25s ease; }
 

@@ -10,8 +10,8 @@ const classe_guerreiro = {
   vida_atual: 120,
   // Status
   dmg: 18,
-  defense_max: 10,
-  defense_atual: 10,
+  resistencia_fisica: 10,
+  resistencia_magica: 0,
   speed_max: 10,
   speed_atual: 10,
   critico_chance: 5,
@@ -29,7 +29,7 @@ const classe_guerreiro = {
   furia_ativa: false,
   furia_buffs: {
     dmg: (dmg) => dmg * 2,
-    defense: (defense) => defense / 2,
+    resistance: (resistance) => (resistance > 0 ? resistance / 2 : resistance),
     speed: (speed) => speed * 2,
     critico_chance: (chance) => chance * 2,
   },
@@ -43,8 +43,8 @@ const classe_arqueiro = {
   vida_atual: 100,
   // Status
   dmg: 22,
-  defense_max: 6,
-  defense_atual: 6,
+  resistencia_fisica: 6,
+  resistencia_magica: 0,
   speed_max: 15,
   speed_atual: 15,
   critico_chance: 20,
@@ -77,8 +77,8 @@ const classe_mago = {
   mana_atual: 100,
   // Status
   dmg: 26,
-  defense_max: 3,
-  defense_atual: 3,
+  resistencia_fisica: 3,
+  resistencia_magica: 8,
   speed_max: 8,
   speed_atual: 8,
   critico_chance: 10,
@@ -111,8 +111,8 @@ const classe_necromante = {
   mana_max: 100,
   mana_atual: 100,
   dmg: 35,
-  defense_max: 0,
-  defense_atual: 0,
+  resistencia_fisica: 0,
+  resistencia_magica: 12,
   speed_max: 8,
   speed_atual: 8,
   critico_chance: 10,
@@ -142,6 +142,13 @@ const classes = {
   necromante: classe_necromante,
 };
 
+const NOMES_CLASSES = {
+  guerreiro: "Guerreiro",
+  arqueiro: "Arqueiro",
+  mago: "Mago",
+  necromante: "Necromante",
+};
+
 // ==============================
 // JOGADOR ATUAL
 // ==============================
@@ -157,6 +164,7 @@ let player = null;
 
 const espada_inicial = {
   id: "espada_inicial",
+  classe: "guerreiro",
   tipo: "arma",
   nome: "Espada inicial",
   dmg: 3,
@@ -164,6 +172,7 @@ const espada_inicial = {
 
 const espada_de_ferro_basica = {
   id: "espada_de_ferro_basica",
+  classe: "guerreiro",
   tipo: "arma",
   nome: "Espada de ferro básica",
   dmg: 5,
@@ -171,6 +180,7 @@ const espada_de_ferro_basica = {
 
 const maça = {
   id: "maca",
+  classe: "guerreiro",
   tipo: "arma",
   nome: "Maça",
   dmg: 7,
@@ -178,9 +188,19 @@ const maça = {
 
 const espada_longa = {
   id: "espada_longa",
+  classe: "guerreiro",
   tipo: "arma",
   nome: "Espada longa",
   dmg: 10,
+};
+
+const machado_duplo_do_minotauro = {
+  id: "machado_duplo_do_minotauro",
+  classe: "guerreiro",
+  tipo: "arma",
+  nome: "Machado duplo do Minotauro",
+  dmg: 17,
+  area_dmg: 10,
 };
 
 // ==============================
@@ -189,6 +209,7 @@ const espada_longa = {
 
 const arco_inicial = {
   id: "arco_inicial",
+  classe: "arqueiro",
   tipo: "arma",
   nome: "Arco inicial",
   dmg: 5,
@@ -196,6 +217,7 @@ const arco_inicial = {
 
 const arco_de_bambu_basico = {
   id: "arco_de_bambu_basico",
+  classe: "arqueiro",
   tipo: "arma",
   nome: "Arco de bambu básico",
   dmg: 7,
@@ -205,6 +227,7 @@ const arco_de_bambu_basico = {
 
 const besta = {
   id: "besta",
+  classe: "arqueiro",
   tipo: "arma",
   nome: "Besta",
   dmg: 9,
@@ -214,11 +237,22 @@ const besta = {
 
 const arco_composto = {
   id: "arco_composto",
+  classe: "arqueiro",
   tipo: "arma",
   nome: "Arco composto",
   dmg: 12,
   reload_time: 1.5, // tempo de recarga em turnos
   multi_shot: 3,
+};
+
+const zarabatana_venenosa = {
+  id: "zarabatana_venenosa",
+  classe: "arqueiro",
+  tipo: "arma",
+  nome: "Zarabatana venenosa",
+  dmg: 15,
+  veneno_dano: 5,
+  veneno_duration: 3,
 };
 
 // ==============================
@@ -227,6 +261,7 @@ const arco_composto = {
 
 const cajado_inicial = {
   id: "cajado_inicial",
+  classe: "mago",
   tipo: "arma",
   nome: "Cajado inicial",
   fisico_dmg: 2,
@@ -236,6 +271,7 @@ const cajado_inicial = {
 
 const cajado_de_madeira_basico = {
   id: "cajado_de_madeira_basico",
+  classe: "mago",
   tipo: "arma",
   nome: "Cajado de madeira básico",
   fisico_dmg: 3,
@@ -245,6 +281,7 @@ const cajado_de_madeira_basico = {
 
 const varinha_magica = {
   id: "varinha_magica",
+  classe: "mago",
   tipo: "arma",
   nome: "Varinha mágica",
   fisico_dmg: 1,
@@ -254,6 +291,7 @@ const varinha_magica = {
 
 const livro_de_feiticos = {
   id: "livro_de_feiticos",
+  classe: "mago",
   tipo: "arma",
   nome: "Livro de feitiços",
   fisico_dmg: 2,
@@ -263,6 +301,7 @@ const livro_de_feiticos = {
 
 const grimorio_misterioso = {
   id: "grimorio_misterioso",
+  classe: "necromante",
   tipo: "arma",
   nome: "Grimório misterioso",
   fisico_dmg: 1,
@@ -272,28 +311,12 @@ const grimorio_misterioso = {
 
 const cetro_sombrio = {
   id: "cetro_sombrio",
+  classe: "necromante",
   tipo: "arma",
   nome: "Cetro sombrio",
   fisico_dmg: 2,
   magic_dmg: 30,
   mana_custo: 35,
-};
-
-const zarabatana_venenosa = {
-  id: "zarabatana_venenosa",
-  tipo: "arma",
-  nome: "Zarabatana venenosa",
-  dmg: 15,
-  veneno_dano: 5,
-  veneno_duration: 3,
-};
-
-const machado_duplo_do_minotauro = {
-  id: "machado_duplo_do_minotauro",
-  tipo: "arma",
-  nome: "Machado duplo do Minotauro",
-  dmg: 17,
-  area_dmg: 10,
 };
 
 // ==============================
@@ -311,7 +334,8 @@ const escudo_de_madeira = {
   id: "escudo_de_madeira",
   tipo: "escudo",
   nome: "Escudo de madeira",
-  defesa: 5,
+  resistencia_fisica: 5,
+  resistencia_magica: 1,
   speed_penalty: 2,
   bonus_chance_de_defender: 10,
 };
@@ -320,7 +344,8 @@ const escudo_de_madeira_reforcado = {
   id: "escudo_de_madeira_reforcado",
   tipo: "escudo",
   nome: "Escudo de madeira reforçado",
-  defesa: 7,
+  resistencia_fisica: 8,
+  resistencia_magica: 2,
   speed_penalty: 3,
   bonus_chance_de_defender: 15,
 };
@@ -329,7 +354,8 @@ const escudo_de_ferro = {
   id: "escudo_de_ferro",
   tipo: "escudo",
   nome: "Escudo de ferro",
-  defesa: 10,
+  resistencia_fisica: 12,
+  resistencia_magica: 3,
   speed_penalty: 5,
   bonus_chance_de_defender: 20,
 };
@@ -338,7 +364,8 @@ const escudo_do_minotauro = {
   id: "escudo_do_minotauro",
   tipo: "escudo",
   nome: "Escudo do Minotauro",
-  defesa: 15,
+  resistencia_fisica: 20,
+  resistencia_magica: 5,
   speed_penalty: 15,
 };
 
@@ -350,28 +377,30 @@ const casaco_de_couro = {
   id: "casaco_de_couro",
   tipo: "armadura",
   nome: "Casaco de couro",
-  defesa: 2,
+  resistencia_fisica: 5,
 };
 
 const armadura_de_placas = {
   id: "armadura_de_placas",
   tipo: "armadura",
   nome: "Armadura de placas",
-  defesa: 5,
+  resistencia_fisica: 12,
 };
 
 const cota_de_malha = {
   id: "cota_de_malha",
   tipo: "armadura",
   nome: "Cota de malha",
-  defesa: 7,
+  resistencia_fisica: 8,
+  resistencia_magica: 5,
 };
 
 const capa_mistica = {
   id: "capa_mistica",
   tipo: "armadura",
   nome: "Capa mística",
-  defesa: 7.5,
+  resistencia_fisica: 3,
+  resistencia_magica: 15,
   mana_bonus: 10, // bônus de mana máxima
   mana_regeneracao: 1, // regeneração de mana por turno
 };
@@ -380,7 +409,7 @@ const armadura_de_placas_do_minotauro = {
   id: "armadura_de_placas_do_minotauro",
   tipo: "armadura",
   nome: "Armadura de placas do Minotauro",
-  defesa: 15,
+  resistencia_fisica: 25,
   speed_penalty: 15,
 };
 
@@ -457,6 +486,7 @@ const interfaceJogo = {
   playerManaBar: document.querySelector("#player-mana-bar"),
   manaEffect: document.querySelector("#player-mana-effect"),
   playerDebuffs: document.querySelector("#player-debuffs"),
+  playerResistances: document.querySelector("#player-resistances"),
   routePanel: document.querySelector("#route-panel"),
   routeTitle: document.querySelector("#route-title"),
   routeProgress: document.querySelector("#route-progress"),
@@ -482,6 +512,7 @@ const interfaceJogo = {
   enemyLevel: document.querySelector("#enemy-level"),
   enemyHealth: document.querySelector("#enemy-health"),
   enemyHealthBar: document.querySelector("#enemy-health-bar"),
+  enemyResistances: document.querySelector("#enemy-resistances"),
 
   message: document.querySelector("#battle-message"),
   log: document.querySelector("#battle-log"),
@@ -547,6 +578,16 @@ const LIMITE_SALAS_ANTES_BOSS = 30;
 const SALAS_POR_ACAMPAMENTO = 5;
 const PRECO_ATUALIZAR_LOJA = 5;
 const ITENS_POR_LOJA = 5;
+const RESISTENCIA_MINIMA = -50;
+const RESISTENCIA_MAXIMA = 75;
+const PENALIDADE_ARMA_FORA_DA_CLASSE = 0.25;
+const VERSAO_RESISTENCIAS = 1;
+const DEFESA_BASE_LEGADA = {
+  guerreiro: 10,
+  arqueiro: 6,
+  mago: 3,
+  necromante: 0,
+};
 const OFERTAS_LOJA = [
   { id: "espada_de_ferro_basica", preco: 35 },
   { id: "maca", preco: 55 },
@@ -590,6 +631,27 @@ function definirMoedasDePrata(total) {
   player.prata = total % 10;
 }
 
+function normalizarResistencia(valor) {
+  const resistencia = Number(valor);
+  if (!Number.isFinite(resistencia)) return 0;
+  return Math.round(
+    Math.min(RESISTENCIA_MAXIMA, Math.max(RESISTENCIA_MINIMA, resistencia)),
+  );
+}
+
+function descreverResistencia(valor) {
+  const resistencia = normalizarResistencia(valor);
+  if (resistencia > 0) return `resiste ${resistencia}%`;
+  if (resistencia < 0) return `vulnerável ${Math.abs(resistencia)}%`;
+  return "sem resistência";
+}
+
+function descreverResistencias(alvo) {
+  const tipoAtaque =
+    obterTipoDanoInimigo(alvo) === "magico" ? "mágico" : "físico";
+  return `Ataque ${tipoAtaque} · Físico: ${descreverResistencia(alvo.resistencia_fisica)} · Mágico: ${descreverResistencia(alvo.resistencia_magica)}`;
+}
+
 // ==============================
 // OBTER ARMA DO JOGADOR
 // ==============================
@@ -609,15 +671,58 @@ function obterEscudoAtual() {
   return ITENS[player.equipado?.escudo] ?? null;
 }
 
-// Defesa do personagem + defesa da armadura equipada
-function obterDefesaTotal() {
-  const defesa =
-    player.defense_atual +
-    (obterArmaduraAtual()?.defesa ?? 0) +
-    (obterEscudoAtual()?.defesa ?? 0);
+function obterResistenciaJogador(tipoDano) {
+  if (!player) return 0;
+  const propriedade =
+    tipoDano === "magico" ? "resistencia_magica" : "resistencia_fisica";
+  const resistenciaBase = Number(player[propriedade]) || 0;
+  const resistenciaArmadura = Number(obterArmaduraAtual()?.[propriedade]) || 0;
+  const resistenciaEscudo = Number(obterEscudoAtual()?.[propriedade]) || 0;
+  const resistenciaTotal = normalizarResistencia(
+    resistenciaBase + resistenciaArmadura + resistenciaEscudo,
+  );
   return player.classe === "guerreiro" && player.furia_ativa
-    ? classe_guerreiro.furia_buffs.defense(defesa)
-    : defesa;
+    ? normalizarResistencia(
+        classe_guerreiro.furia_buffs.resistance(resistenciaTotal),
+      )
+    : resistenciaTotal;
+}
+
+function obterTipoDanoInimigo(oponente) {
+  if (oponente.tipo_dano === "magico" || oponente.tipo_dano === "fisico") {
+    return oponente.tipo_dano;
+  }
+  return oponente.tipo === "mago_inimigo" ||
+    (oponente.boss && oponente.nome === "Dragão")
+    ? "magico"
+    : "fisico";
+}
+
+function obterPenalidadeArma(arma) {
+  return arma?.classe && arma.classe !== player?.classe
+    ? PENALIDADE_ARMA_FORA_DA_CLASSE
+    : 0;
+}
+
+function aplicarPenalidadeArma(dano, arma) {
+  return dano * (1 - obterPenalidadeArma(arma));
+}
+
+function descreverClasseArma(arma) {
+  if (!arma.classe) return [];
+  return [
+    `Classe: ${NOMES_CLASSES[arma.classe] ?? arma.classe}`,
+    `-${Math.round(PENALIDADE_ARMA_FORA_DA_CLASSE * 100)}% de dano fora da classe`,
+  ];
+}
+
+function registrarPenalidadeArma(arma) {
+  const penalidade = obterPenalidadeArma(arma);
+  if (penalidade > 0) {
+    registrarMensagem(
+      `${arma.nome} é de outra classe; dano reduzido em ${Math.round(penalidade * 100)}%.`,
+    );
+  }
 }
 
 function obterVelocidadeBase() {
@@ -647,6 +752,29 @@ function prepararInventario(jogador) {
   jogador.prata = Number.isFinite(Number(jogador.prata))
     ? Number(jogador.prata)
     : 0;
+  if (jogador.versao_resistencias !== VERSAO_RESISTENCIAS) {
+    const defesaMaximaLegada = Number(jogador.defense_max);
+    const niveisDeResistencia = Number.isFinite(defesaMaximaLegada)
+      ? Math.max(
+          0,
+          Math.floor(defesaMaximaLegada - DEFESA_BASE_LEGADA[jogador.classe]),
+        )
+      : 0;
+    const classeBase = classes[jogador.classe];
+    jogador.resistencia_fisica = normalizarResistencia(
+      classeBase.resistencia_fisica + niveisDeResistencia,
+    );
+    jogador.resistencia_magica = normalizarResistencia(
+      classeBase.resistencia_magica + niveisDeResistencia,
+    );
+    jogador.versao_resistencias = VERSAO_RESISTENCIAS;
+  }
+  jogador.resistencia_fisica = normalizarResistencia(
+    jogador.resistencia_fisica,
+  );
+  jogador.resistencia_magica = normalizarResistencia(
+    jogador.resistencia_magica,
+  );
   jogador.run_drop_ids = Array.isArray(jogador.run_drop_ids)
     ? jogador.run_drop_ids.filter((id) => ITENS[id])
     : [];
@@ -766,6 +894,8 @@ function prepararInventario(jogador) {
 
   jogador.inventario = inventario;
   jogador.equipado = equipado;
+  delete jogador.defense_max;
+  delete jogador.defense_atual;
 
   // Mantém a carteira no formato canônico: 10 pratas equivalem a 1 ouro.
   const totalMoedas = Math.max(
@@ -804,17 +934,29 @@ function alternarEquipamento(id) {
 function descreverItem(item) {
   if (item.tipo === "armadura") {
     const extras = [];
+    if (item.resistencia_fisica) {
+      extras.push(`Físico +${item.resistencia_fisica}% resistência`);
+    }
+    if (item.resistencia_magica) {
+      extras.push(`Mágico +${item.resistencia_magica}% resistência`);
+    }
     if (item.mana_bonus) extras.push(`+${item.mana_bonus} mana máxima`);
     if (item.mana_regeneracao) {
       extras.push(`+${item.mana_regeneracao} mana por turno`);
     }
     if (item.speed) extras.push(`+${item.speed} velocidade`);
     if (item.speed_penalty) extras.push(`-${item.speed_penalty} velocidade`);
-    return [`+${item.defesa} defesa`, ...extras].join(" · ");
+    return extras.join(" · ");
   }
 
   if (item.tipo === "escudo") {
-    const extras = [`+${item.defesa} defesa`];
+    const extras = [];
+    if (item.resistencia_fisica) {
+      extras.push(`Físico +${item.resistencia_fisica}% resistência`);
+    }
+    if (item.resistencia_magica) {
+      extras.push(`Mágico +${item.resistencia_magica}% resistência`);
+    }
     if (item.speed_penalty) extras.push(`-${item.speed_penalty} velocidade`);
     if (item.bonus_chance_de_defender) {
       extras.push(`${item.bonus_chance_de_defender}% de chance de bloquear`);
@@ -823,11 +965,15 @@ function descreverItem(item) {
   }
 
   if (item.magic_dmg !== undefined) {
-    return `Mágico +${item.magic_dmg} (${item.mana_custo} mana) · Físico +${item.fisico_dmg}`;
+    return [
+      `Mágico +${item.magic_dmg} (${item.mana_custo} mana)`,
+      `Físico +${item.fisico_dmg}`,
+      ...descreverClasseArma(item),
+    ].join(" · ");
   }
 
-  const extras = [`+${item.dmg} dano`];
-  if (item.area_dmg) extras.push(`+${item.area_dmg} dano em área`);
+  const extras = [`Físico +${item.dmg} dano`, ...descreverClasseArma(item)];
+  if (item.area_dmg) extras.push(`Físico +${item.area_dmg} dano em área`);
   if (item.veneno_dano) {
     extras.push(
       `veneno ${item.veneno_dano}/turno por ${item.veneno_duration} turnos`,
@@ -915,6 +1061,18 @@ function renderizarInventario() {
       return item.tipo === categoriaInventario;
     });
 
+  if (categoriaInventario === "arma") {
+    const ordemClasses = ["guerreiro", "arqueiro", "mago", "necromante"];
+    itens.sort((primeiro, segundo) => {
+      const ordemPrimeiro = ordemClasses.indexOf(primeiro.classe);
+      const ordemSegundo = ordemClasses.indexOf(segundo.classe);
+      const diferenca =
+        (ordemPrimeiro < 0 ? ordemClasses.length : ordemPrimeiro) -
+        (ordemSegundo < 0 ? ordemClasses.length : ordemSegundo);
+      return diferenca || primeiro.nome.localeCompare(segundo.nome, "pt-BR");
+    });
+  }
+
   if (categoriaInventario === "outros") {
     if (player.curas_loja > 0) {
       itens.push({
@@ -941,7 +1099,18 @@ function renderizarInventario() {
     area.append(vazio);
   }
 
+  let classeArmaRenderizada = null;
   for (const item of itens) {
+    if (categoriaInventario === "arma") {
+      const classeItem = item.classe ?? "outras";
+      if (classeItem !== classeArmaRenderizada) {
+        const tituloClasse = document.createElement("h4");
+        tituloClasse.className = "inventory-label weapon-class-heading";
+        tituloClasse.textContent = NOMES_CLASSES[classeItem] ?? "Outras armas";
+        area.append(tituloClasse);
+        classeArmaRenderizada = classeItem;
+      }
+    }
     const id = item.id;
     const equipado = ["arma", "armadura", "escudo"].includes(item.tipo)
       ? player.equipado[item.tipo] === id
@@ -1419,21 +1588,36 @@ function avancarEfeitoPocao() {
 // DANO DO ATAQUE
 // ==============================
 
-function calcularDanoAtaque() {
+function tipoDanoBaseClasse() {
+  return player.classe === "mago" || player.classe === "necromante"
+    ? "magico"
+    : "fisico";
+}
+
+function calcularDanoAtaque(tipoDanoForcado = null) {
   const arma = obterArmaAtual();
+  const tipoBase = tipoDanoForcado ?? tipoDanoBaseClasse();
+  registrarPenalidadeArma(arma);
   const aplicarFuria = (dano) =>
     player.classe === "guerreiro" && player.furia_ativa
       ? classe_guerreiro.furia_buffs.dmg(dano)
       : dano;
+  const ajustarDano = (dano) => aplicarPenalidadeArma(aplicarFuria(dano), arma);
 
   // Sem arma: só o dano base do personagem
   if (!arma) {
     registrarMensagem("Você atacou sem arma.");
-    return aplicarFuria(player.dmg);
+    return [{ tipo: tipoBase, dano: ajustarDano(player.dmg) }];
   }
 
   // Arma mágica (cajado): gasta mana; sem mana, dano físico
   if (arma.magic_dmg !== undefined) {
+    if (tipoDanoForcado === "fisico") {
+      return [
+        { tipo: "fisico", dano: ajustarDano(player.dmg + arma.fisico_dmg) },
+      ];
+    }
+
     if (player.mana_atual >= arma.mana_custo) {
       player.mana_atual -= arma.mana_custo;
 
@@ -1447,17 +1631,29 @@ function calcularDanoAtaque() {
         registrarMensagem(`Dano mágico reduzido em ${penalidade}%.`);
       }
 
-      return aplicarFuria(
-        (player.dmg + arma.magic_dmg) * (1 - penalidade / 100),
-      );
+      return [
+        {
+          tipo: "magico",
+          dano: ajustarDano(
+            (player.dmg + arma.magic_dmg) * (1 - penalidade / 100),
+          ),
+        },
+      ];
     }
 
     registrarMensagem("Sem mana! Você atacou com o dano físico do cajado.");
 
-    return aplicarFuria(player.dmg + arma.fisico_dmg);
+    return [
+      { tipo: "fisico", dano: ajustarDano(player.dmg + arma.fisico_dmg) },
+    ];
   }
 
-  return aplicarFuria(player.dmg + arma.dmg);
+  return [
+    {
+      tipo: tipoBase,
+      dano: ajustarDano(player.dmg + arma.dmg),
+    },
+  ];
 }
 
 function obterTempoRecarga(arma) {
@@ -1496,6 +1692,9 @@ function restaurarCombateSalvo(estado = player?.combat_state) {
     ...oponente,
     vida: Number(oponente.vida),
     vida_max: Number(oponente.vida_max),
+    resistencia_fisica: normalizarResistencia(oponente.resistencia_fisica),
+    resistencia_magica: normalizarResistencia(oponente.resistencia_magica),
+    tipo_dano: obterTipoDanoInimigo(oponente),
   }));
   const alvosSalvos = Array.isArray(estado.alvosMultishot)
     ? estado.alvosMultishot
@@ -1682,75 +1881,99 @@ function criarInimigo(tipoEncontro = "combate") {
   const modelos = {
     slime: {
       nome: "Slime",
+      tipo_dano: "fisico",
       vida: 55,
       dmg: 11,
       xp: 9,
       speed: 10,
       prata: 4,
       ouro: 0,
+      resistencia_fisica: 0,
+      resistencia_magica: -15,
     },
     zumbi: {
       nome: "Zumbi",
+      tipo_dano: "fisico",
       vida: 80,
       dmg: 14,
       xp: 12,
       speed: 9,
       prata: 10,
       ouro: 1,
+      resistencia_fisica: 10,
+      resistencia_magica: 0,
     },
     goblin: {
       nome: "Goblin",
+      tipo_dano: "fisico",
       vida: 70,
       dmg: 18,
       xp: 16,
       speed: 15,
       prata: 14,
       ouro: 2,
+      resistencia_fisica: 0,
+      resistencia_magica: 0,
     },
     esqueleto: {
       nome: "Esqueleto",
+      tipo_dano: "fisico",
       vida: 90,
       dmg: 20,
       xp: 20,
       speed: 18,
       prata: 18,
       ouro: 3,
+      resistencia_fisica: -15,
+      resistencia_magica: 25,
     },
     orc: {
       nome: "Orc",
+      tipo_dano: "fisico",
       vida: 135,
       dmg: 20,
       xp: 30,
       speed: 10,
       prata: 22,
       ouro: 5,
+      resistencia_fisica: 20,
+      resistencia_magica: 0,
     },
     mago_inimigo: {
       nome: "Mago Inimigo",
+      tipo_dano: "magico",
       vida: 65,
       dmg: 26,
       xp: 24,
       speed: 12,
       prata: 20,
       ouro: 4,
+      resistencia_fisica: 0,
+      resistencia_magica: 25,
     },
     aranha_gigante: {
       nome: "Aranha Gigante",
+      tipo_dano: "fisico",
       vida: 120,
       dmg: 22,
       xp: 28,
       speed: 14,
       prata: 25,
       ouro: 6,
+      resistencia_fisica: 0,
+      resistencia_magica: 0,
     },
     troll: {
       nome: "Troll",
+      tipo_dano: "fisico",
       vida: 150,
       dmg: 30,
       xp: 35,
       speed: 8,
       prata: 30,
       ouro: 8,
+      resistencia_fisica: 25,
+      resistencia_magica: 10,
     },
   };
 
@@ -1759,18 +1982,22 @@ function criarInimigo(tipoEncontro = "combate") {
     const fatorElite = tipoEncontro === "elite" ? 1.5 : 1;
     const fatorCombate = 1.12 ** (nivel - 1);
     const fatorAndar = 1.2 ** (andar - 1);
+    const fatorChefe = ehChefe ? 1.2 : 1;
     const fatorJogador = ehChefe ? 1 : fatorCombate;
     const fatorXp = (ehChefe ? 1 : 1.05 ** (nivel - 1)) * fatorAndar;
     const fatorStatus = fatorJogador * fatorAndar * fatorElite;
     return {
       tipo,
       nome: base.nome,
+      tipo_dano: base.tipo_dano ?? "fisico",
       level: ehChefe ? andar : nivel + andar - 1,
       boss: ehChefe,
       elite: tipoEncontro === "elite",
-      vida_max: Math.round(base.vida * fatorStatus),
-      vida: Math.round(base.vida * fatorStatus),
-      dmg: Math.round(base.dmg * fatorStatus),
+      resistencia_fisica: normalizarResistencia(base.resistencia_fisica),
+      resistencia_magica: normalizarResistencia(base.resistencia_magica),
+      vida_max: Math.round(base.vida * fatorStatus * fatorChefe),
+      vida: Math.round(base.vida * fatorStatus * fatorChefe),
+      dmg: Math.round(base.dmg * fatorStatus * (ehChefe ? 1.08 : 1)),
       xp: Math.round(base.xp * fatorXp * fatorElite),
       speed: Math.round(
         (base.speed +
@@ -1848,30 +2075,39 @@ function criarInimigo(tipoEncontro = "combate") {
 const bosses = {
   minotauro: {
     nome: "Minotauro",
+    tipo_dano: "fisico",
     vida: 450,
     dmg: 70,
     xp: 110,
     speed: 18,
     prata: 200,
     ouro: 100,
+    resistencia_fisica: 25,
+    resistencia_magica: 0,
   },
   dragao: {
     nome: "Dragão",
+    tipo_dano: "magico",
     vida: 400,
     dmg: 40,
     xp: 90,
     speed: 20,
     prata: 100,
     ouro: 50,
+    resistencia_fisica: 10,
+    resistencia_magica: 20,
   },
   hidra: {
     nome: "Hidra",
+    tipo_dano: "fisico",
     vida: 400,
     dmg: 60,
     xp: 100,
     speed: 15,
     prata: 150,
     ouro: 75,
+    resistencia_fisica: 10,
+    resistencia_magica: 15,
   },
 };
 
@@ -2055,6 +2291,7 @@ function atualizarTela() {
   interfaceJogo.playerDebuffs.textContent = debuffsAtivos.length
     ? `Efeitos: ${debuffsAtivos.join(" · ")}`
     : "";
+  interfaceJogo.playerResistances.textContent = `Resistências: Físico ${descreverResistencia(obterResistenciaJogador("fisico"))} · Mágico ${descreverResistencia(obterResistenciaJogador("magico"))}`;
 
   // ------------------------------
   // Inventário
@@ -2083,6 +2320,9 @@ function atualizarTela() {
   interfaceJogo.enemyName.hidden = batalhaEmGrupo;
   interfaceJogo.enemyLevel.hidden = batalhaEmGrupo;
   vitality.hidden = batalhaEmGrupo;
+  interfaceJogo.enemyResistances.hidden = batalhaEmGrupo;
+  interfaceJogo.enemyResistances.title =
+    "Resistência reduz o dano; vulnerabilidade aumenta o dano recebido.";
 
   if (batalhaEmGrupo) {
     interfaceJogo.enemyParty.replaceChildren();
@@ -2145,12 +2385,18 @@ function atualizarTela() {
         (inimigoDoGrupo.vida / inimigoDoGrupo.vida_max) * 100,
       )}%`;
       barra.append(preenchimento);
-      card.append(nome, vida, barra);
+      const resistencias = document.createElement("span");
+      resistencias.className = "enemy-resistance-copy";
+      resistencias.textContent = descreverResistencias(inimigoDoGrupo);
+      resistencias.title =
+        "Resistência reduz o dano; vulnerabilidade aumenta o dano recebido.";
+      card.append(nome, vida, barra, resistencias);
       interfaceJogo.enemyParty.append(card);
     }
   } else if (inimigo) {
     interfaceJogo.enemyName.textContent = inimigo.nome;
     interfaceJogo.enemyLevel.textContent = `NÍVEL ${inimigo.level}`;
+    interfaceJogo.enemyResistances.textContent = descreverResistencias(inimigo);
     interfaceJogo.enemyHealth.textContent = `${Math.ceil(vidaInimigo)} / ${Math.ceil(inimigo.vida_max)}`;
     const percentualVidaInimigo = Math.min(
       100,
@@ -2207,7 +2453,7 @@ function mostrarGameOver() {
   const mensagensGameOver = [
     "Hora de começar outra jornada.",
     "Tente mais uma vez.",
-    "Você realmente lê isso.",
+    "Você realmente lê isso?",
   ];
   interfaceJogo.gameOverMessage.textContent =
     mensagensGameOver[Math.floor(Math.random() * mensagensGameOver.length)];
@@ -2251,7 +2497,6 @@ function novaRun() {
   player.debuffs = {};
   player.run_drop_ids = [];
 
-  player.defense_atual = player.defense_max;
   player.speed_atual = player.speed_max;
 
   if (usaMana()) {
@@ -2337,7 +2582,7 @@ function concluirVitoria() {
         `🛡️ ${derrotado.nome} dropou: ${casaco_de_couro.nome}! Equipe no inventário.`,
       );
     }
-    if (derrotado.nome === "Minotauro") {
+    if (derrotado.boss && derrotado.nome === "Minotauro") {
       for (const id of [
         machado_duplo_do_minotauro.id,
         armadura_de_placas_do_minotauro.id,
@@ -2392,7 +2637,12 @@ function concluirVitoria() {
 
     player.vida_max *= 1.12;
     player.dmg *= 1.12;
-    player.defense_max += 1;
+    player.resistencia_fisica = normalizarResistencia(
+      player.resistencia_fisica + 1,
+    );
+    player.resistencia_magica = normalizarResistencia(
+      player.resistencia_magica + 1,
+    );
     player.speed_max += 1;
 
     // +1 cura a cada 3 níveis
@@ -2413,7 +2663,6 @@ function concluirVitoria() {
   if (niveisGanhos > 0) {
     player.vida_atual = player.vida_max;
     player.curas_atual = player.curas_max;
-    player.defense_atual = player.defense_max;
     player.speed_atual = player.speed_max;
 
     if (usaMana()) {
@@ -2610,13 +2859,13 @@ function finalizarDerrota() {
 
 // Retorna false se o jogador morreu
 function ataqueInimigo(oponente = inimigo) {
-  const defesaTotal = obterDefesaTotal();
-
-  const reducaoDefesa = defesaTotal / (defesaTotal + 20);
-
-  let danoRecebido = Math.max(1, oponente.dmg * (1 - reducaoDefesa));
+  const tipoDano = obterTipoDanoInimigo(oponente);
+  let danoRecebido = oponente.dmg;
+  const resistencia = obterResistenciaJogador(tipoDano);
+  danoRecebido = Math.max(0, danoRecebido * (1 - resistencia / 100));
   const escudo = obterEscudoAtual();
   if (
+    tipoDano === "fisico" &&
     escudo?.bonus_chance_de_defender &&
     Math.random() * 100 < escudo.bonus_chance_de_defender
   ) {
@@ -2647,8 +2896,15 @@ function ataqueInimigo(oponente = inimigo) {
 
   player.vida_atual -= danoRecebido;
 
+  const tipoFormatado = tipoDano === "magico" ? "mágico" : "físico";
+  const efeitoResistencia =
+    resistencia > 0
+      ? ` (${resistencia}% de resistência)`
+      : resistencia < 0
+        ? ` (${Math.abs(resistencia)}% de vulnerabilidade)`
+        : "";
   registrarMensagem(
-    `${oponente.nome} causou ${Math.ceil(danoRecebido)} de dano em você.`,
+    `${oponente.nome} causou ${Math.ceil(danoRecebido)} de dano ${tipoFormatado}${efeitoResistencia} em você.`,
   );
   if (danoRecebido > 0) aplicarEfeitoDoInimigo(oponente);
 
@@ -2707,11 +2963,22 @@ function registrarDerrotaInimigo(alvo) {
   }
 }
 
-function causarDanoInimigo(alvo, dano, origem = "") {
+function causarDanoInimigo(alvo, dano, origem = "", tipoDano = "fisico") {
   if (!alvo || alvo.vida <= 0) return;
-  alvo.vida = Math.max(0, alvo.vida - dano);
+  const propriedadeResistencia =
+    tipoDano === "magico" ? "resistencia_magica" : "resistencia_fisica";
+  const resistencia = normalizarResistencia(alvo[propriedadeResistencia]);
+  const danoFinal = Math.max(0, dano * (1 - resistencia / 100));
+  alvo.vida = Math.max(0, alvo.vida - danoFinal);
+  const tipoFormatado = tipoDano === "magico" ? "mágico" : "físico";
+  const efeitoResistencia =
+    resistencia > 0
+      ? ` (${resistencia}% de resistência)`
+      : resistencia < 0
+        ? ` (${Math.abs(resistencia)}% de vulnerabilidade)`
+        : "";
   registrarMensagem(
-    `${alvo.nome} recebeu ${Math.ceil(dano)} de dano${origem}.`,
+    `${alvo.nome} recebeu ${Math.ceil(danoFinal)} de dano ${tipoFormatado}${efeitoResistencia}${origem}.`,
   );
   registrarDerrotaInimigo(alvo);
 }
@@ -2721,7 +2988,12 @@ function atacarComAlmasInvocadas(alvo) {
     const alvoAtual =
       alvo?.vida > 0 ? alvo : inimigos.find((oponente) => oponente.vida > 0);
     if (!alvoAtual) return;
-    causarDanoInimigo(alvoAtual, player.dmg, " pelas almas invocadas");
+    causarDanoInimigo(
+      alvoAtual,
+      player.dmg,
+      " pelas almas invocadas",
+      "fisico",
+    );
   }
 }
 
@@ -2790,14 +3062,14 @@ function executarAcaoJogador(acao) {
   if (acao === "furia") {
     player.furia_ativa = true;
     registrarMensagem(
-      "Você ativou Fúria até o fim do combate: dano e velocidade dobrados, defesa pela metade.",
+      "Você ativou Fúria até o fim do combate: dano e velocidade dobrados, resistências pela metade.",
     );
     return false;
   }
 
   if (acao === "mil_flechas") {
     player.skill_cooldown_salas = 6;
-    const danoCritico = calcularDanoAtaque() * player.critico_dano;
+    const danosAtaque = calcularDanoAtaque("fisico");
     for (const alvo of inimigos) {
       for (
         let acerto = 1;
@@ -2805,7 +3077,14 @@ function executarAcaoJogador(acao) {
         acerto += 1
       ) {
         registrarMensagem(`⚡ Flecha crítica ${acerto}/4!`);
-        causarDanoInimigo(alvo, danoCritico, " (Mil Flechas)");
+        for (const componente of danosAtaque) {
+          causarDanoInimigo(
+            alvo,
+            componente.dano * player.critico_dano,
+            " (Mil Flechas)",
+            "fisico",
+          );
+        }
       }
     }
     return inimigos.every((alvo) => alvo.vida <= 0);
@@ -2814,17 +3093,20 @@ function executarAcaoJogador(acao) {
   if (acao === "explosao_arcana") {
     player.mana_atual -= classe_mago.explosao_arcana.mana_custo;
     const arma = obterArmaAtual();
+    registrarPenalidadeArma(arma);
     const penalidade = calcularPenalidadeMagica();
     const danoBase =
       (player.dmg + (arma?.magic_dmg ?? 0)) * (1 - penalidade / 100);
-    const danoCritico =
+    const danoCritico = aplicarPenalidadeArma(
       danoBase *
-      player.critico_dano *
-      classe_mago.explosao_arcana.multiplicador_critico;
+        player.critico_dano *
+        classe_mago.explosao_arcana.multiplicador_critico,
+      arma,
+    );
     registrarMensagem("Você lançou Explosão Arcana (-60 de mana)!");
     for (const alvo of inimigos) {
       if (alvo.vida > 0) {
-        causarDanoInimigo(alvo, danoCritico, " (crítico arcano)");
+        causarDanoInimigo(alvo, danoCritico, " (crítico arcano)", "magico");
       }
     }
     return inimigos.every((alvo) => alvo.vida <= 0);
@@ -2852,7 +3134,7 @@ function executarAcaoJogador(acao) {
   }
 
   if (acao === "atacar") {
-    const danoBase = calcularDanoAtaque();
+    const danosAtaque = calcularDanoAtaque();
     const arma = obterArmaAtual();
     const tempoRecarga = obterTempoRecarga(arma);
 
@@ -2873,17 +3155,26 @@ function executarAcaoJogador(acao) {
     for (let tiro = 0; tiro < tiros; tiro += 1) {
       const vivos = alvosDoAtaque.filter((alvo) => alvo.vida > 0);
       if (vivos.length === 0) break;
-      causarDanoInimigo(
-        vivos[tiro % vivos.length],
-        calcularDanoCritico(danoBase),
-        tiros > 1 ? " (multishot)" : "",
-      );
+      const alvo = vivos[tiro % vivos.length];
+      for (const componente of danosAtaque) {
+        causarDanoInimigo(
+          alvo,
+          calcularDanoCritico(componente.dano),
+          tiros > 1 ? " (multishot)" : "",
+          componente.tipo,
+        );
+      }
     }
     alvosMultishotSelecionados.clear();
 
     if (arma?.area_dmg > 0) {
       for (const alvo of inimigos) {
-        causarDanoInimigo(alvo, arma.area_dmg, " (dano em área)");
+        causarDanoInimigo(
+          alvo,
+          aplicarPenalidadeArma(arma.area_dmg, arma),
+          " (dano em área)",
+          arma.area_dmg_tipo ?? "fisico",
+        );
       }
     }
 
