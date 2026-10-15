@@ -110,7 +110,7 @@ const classe_necromante = {
   vida_atual: 75,
   mana_max: 100,
   mana_atual: 100,
-  dmg: 27,
+  dmg: 30,
   resistencia_fisica: 0,
   resistencia_magica: 12,
   speed_max: 8,
