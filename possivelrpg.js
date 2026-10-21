@@ -161,14 +161,14 @@ const classe_paladino = {
   // Golpe Sagrado: ataque mágico pontual, ignora parte da defesa do inimigo
   golpe_sagrado: {
     fe_custo: 40,
-    magic_dmg: 24,
+    magic_dmg: 30,
     ignora_defesa: 0.3, // ignora 30% da defesa do inimigo no cálculo de redução
   },
   // Bênção: buff ativo até o fim do combate, dá roubo de vida nos ataques normais
   bencao_ativa: false,
   bencao: {
     fe_custo: 50,
-    roubo_vida: 0.5, // cura 25% do dano causado em ataques normais enquanto ativa
+    roubo_vida: 0.3, // cura 30% do dano causado em ataques normais enquanto ativa
   },
 };
 
@@ -2295,7 +2295,7 @@ function atualizarTela() {
   const ehMago = player.classe === "mago";
   const ehNecromante = player.classe === "necromante";
   const ehPaladino = player.classe === "paladino";
-  const limiteFuria = 10 + 0.4 * (player.level - 1);
+  const limiteFuria = 25 + 0.4 * (player.level - 1);
   const percentualVidaAlvo = inimigo
     ? (inimigo.vida / inimigo.vida_max) * 100
     : 100;
@@ -3207,7 +3207,7 @@ function atacarComAlmasInvocadas(alvo) {
     if (!alvoAtual) return;
     causarDanoInimigo(
       alvoAtual,
-      player.dmg,
+      player.dmg * 0.5,
       " pelas almas invocadas",
       "fisico",
     );
@@ -3367,7 +3367,7 @@ function executarAcaoJogador(acao) {
     player.fe_atual -= classe_paladino.bencao.fe_custo;
     player.bencao_ativa = true;
     registrarMensagem(
-      "Você ativou a Bênção: seus ataques normais recuperam 25% do dano causado até o fim do combate.",
+      `Você ativou a Bênção: seus ataques normais recuperam ${Math.round(classe_paladino.bencao.roubo_vida * 100)}% do dano causado até o fim do combate.`,
     );
     return false;
   }
@@ -3505,7 +3505,7 @@ function jogarTurno(acao) {
   }
 
   if (acao === "furia") {
-    const limiteFuria = 10 + 0.4 * (player.level - 1);
+    const limiteFuria = 25 + 0.4 * (player.level - 1);
     if (
       player.classe !== "guerreiro" ||
       player.furia_ativa ||
