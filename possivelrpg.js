@@ -843,6 +843,12 @@ function prepararInventario(jogador) {
     ? jogador.inventario.filter((id) => ITENS[id])
     : [];
 
+  jogador.level = Number.isFinite(Number(jogador.level))
+    ? Math.max(1, Math.floor(Number(jogador.level)))
+    : 1;
+  jogador.experiencia = Number.isFinite(Number(jogador.experiencia))
+    ? Math.max(0, Number(jogador.experiencia))
+    : 0;
   jogador.ouro = Number.isFinite(Number(jogador.ouro))
     ? Number(jogador.ouro)
     : 0;
@@ -1861,7 +1867,10 @@ function obterTempoRecarga(arma) {
 
 // XP necessário para o próximo nível: 100 x 1,1^(nível-1)
 function xpParaProximoNivel() {
-  return Math.round(100 * 1.1 ** (player.level - 1));
+  const nivel = Number.isFinite(Number(player?.level))
+    ? Number(player.level)
+    : 1;
+  return Math.round(100 * 1.1 ** (Math.max(1, nivel) - 1));
 }
 
 function restaurarCombateSalvo(estado = player?.combat_state) {
@@ -2422,11 +2431,15 @@ function atualizarTela() {
   // XP
   // ------------------------------
 
+  const xpAtual = Number.isFinite(Number(player.experiencia))
+    ? Number(player.experiencia)
+    : 0;
   const xpNecessario = xpParaProximoNivel();
+  const percentualXp = xpNecessario > 0 ? Math.min(100, (xpAtual / xpNecessario) * 100) : 0;
 
-  interfaceJogo.playerXp.textContent = `${player.experiencia} / ${xpNecessario}`;
+  interfaceJogo.playerXp.textContent = `${xpAtual} / ${xpNecessario}`;
 
-  interfaceJogo.playerXpBar.style.width = `${Math.min(100, (player.experiencia / xpNecessario) * 100)}%`;
+  interfaceJogo.playerXpBar.style.width = `${percentualXp}%`;
 
   interfaceJogo.playerGold.textContent = `${Math.floor(player.ouro)}`;
   interfaceJogo.playerSilver.textContent = `${Math.floor(player.prata)}`;
