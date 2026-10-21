@@ -11,8 +11,9 @@ body {
     overflow: hidden;
     padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
 }
-:root[data-device] .shell { flex: 1 1 0; min-height: 0; width: calc(100% - 16px); margin: 0 auto; padding: 0 0 3px; }
+:root[data-device] .shell { flex: 1 1 0; min-height: 0; width: calc(100% - 16px); margin: 8px auto; padding: 0; }
 main { display: flex; flex-direction: column; min-width: 0; }
+:root[data-device] .topbar { display: none; }
 /* Entrance movement must not change the measured overflow of the fixed screen. */
 :root[data-device] .game-grid:not([hidden]),
 :root[data-device] .route-panel:not([hidden]) { animation: viewport-enter .34s ease-out both; }
@@ -39,6 +40,49 @@ main { display: flex; flex-direction: column; min-width: 0; }
 .player-coins { justify-content: flex-start; gap: 6px; }
 .coin { padding: 2px 6px; font-size: 14px; overflow-wrap: anywhere; }
 :root[data-device] .player-stats { gap: 8px; }
+:root[data-device] .player-hud {
+    padding-bottom: 68px !important;
+}
+.player-status-notes {
+    position: absolute;
+    z-index: 2;
+    right: 10px;
+    bottom: 7px;
+    left: 10px;
+    display: grid;
+    grid-template-rows: 26px 26px;
+    align-content: end;
+    overflow: hidden;
+    pointer-events: none;
+}
+.player-hud .player-status-notes .player-debuffs,
+:root[data-device] .player-hud .player-status-notes .player-debuffs,
+:root[data-device="mobile"][data-orientation="portrait"] .player-hud .player-status-notes .player-debuffs {
+    display: block;
+    min-width: 0;
+    min-height: 26px;
+    margin: 0;
+    overflow: hidden;
+    font-size: 20px;
+    line-height: 26px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    visibility: visible !important;
+}
+.player-hud .player-status-notes .player-resistances {
+    min-width: 0;
+    min-height: 26px;
+    margin: 0;
+    overflow: hidden;
+    font-size: 20px;
+    line-height: 26px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.player-hud .player-status-notes {
+    height: 52px;
+    grid-template-rows: 26px 26px;
+}
 .stat-heading { margin-bottom: 4px; }
 .stat-note { margin-top: 3px; font-size: 10px; }
 :root[data-device] .actions { gap: 6px; padding: 0; }
@@ -69,16 +113,39 @@ main { display: flex; flex-direction: column; min-width: 0; }
 :root[data-device="mobile"][data-orientation="landscape"] .character-form label { grid-row: 1; }
 :root[data-device="mobile"][data-orientation="landscape"] .character-form button { grid-column: 1 / -1; }
 :root[data-device] .modal { position: fixed; inset: 0 0 auto; margin: 0 auto; max-height: none; overflow: visible; }
-:root[data-device] .inventory-window, :root[data-device] .log-window { max-height: none; overflow: visible; }
+:root[data-device] .inventory-window { width: min(900px, 100%); max-height: min(88dvh, 820px); grid-template-rows: auto minmax(0, 1fr) auto; overflow: hidden; }
+:root[data-device] .log-window { max-height: none; overflow: visible; }
 :root[data-device] .log-window { max-height: min(68dvh, 540px); overflow: hidden; }
 :root[data-device] .inventory-layout { min-height: 0; }
-:root[data-device] .inventory-content, :root[data-device] .log-modal-list { max-height: none; overflow: visible; }
+:root[data-device] .inventory-content { min-height: 0; max-height: none; overflow: visible; }
+:root[data-device] .log-modal-list { max-height: none; overflow: visible; }
 :root[data-device] .log-modal-list { max-height: min(48dvh, 380px); overflow: auto; }
 :root[data-device] .inventory-content { padding: 10px; }
+:root[data-device] .equipped-section { display: grid; grid-template-columns: minmax(0, 1fr); gap: 6px; }
+:root[data-device] .equipped-section > .inventory-label { grid-column: 1 / -1; }
+:root[data-device] .equipment-slot { min-height: 54px; padding: 7px; }
+:root[data-device] .equipment-slot + .equipment-slot { border-top: 1px solid rgb(90 71 37 / 42%); }
 .equipped-section { margin-bottom: 8px; }
 .items-heading { margin-top: 8px; }
 :root[data-device] .modal-header { padding: 8px 12px; }
 .inventory-item > div { min-width: 0; overflow-wrap: anywhere; }
+:root[data-device] .inventory-item { padding: 10px 4px; }
+:root[data-device] .item-name { font-size: 14px; }
+:root[data-device] .item-stats { font-size: 12px; }
+:root[data-device] .item-button { min-height: 36px; font-size: 12px; }
+:root[data-device="mobile"] .inventory-layout { grid-template-columns: minmax(0, 1fr); }
+:root[data-device="mobile"] .inventory-sidebar { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 4px; padding: 7px; border-right: 0; border-bottom: 1px solid rgb(90 71 37 / 65%); }
+:root[data-device="mobile"] .inventory-category { min-width: 0; justify-content: center; gap: 4px; padding: 0 3px; font-size: 12px; }
+:root[data-device="mobile"] .inventory-category span { overflow: hidden; text-overflow: ellipsis; }
+:root[data-device="mobile"] .inventory-content { max-height: none; padding: 10px; }
+@media (max-width: 767px) {
+    .inventory-window { width: 100%; max-height: 92dvh; grid-template-rows: auto minmax(0, 1fr); }
+    .inventory-layout { min-height: 0; grid-template-columns: minmax(0, 1fr); grid-template-rows: auto minmax(0, 1fr); }
+    .inventory-sidebar { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 4px; padding: 7px; border-right: 0; border-bottom: 1px solid rgb(90 71 37 / 65%); }
+    .inventory-category { min-width: 0; justify-content: center; gap: 4px; padding: 0 3px; font-size: 14px; }
+    .inventory-category span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .inventory-content { min-height: 0; max-height: none; overflow: auto; padding: 12px; }
+}
 .log-modal-list li { overflow-wrap: anywhere; }
 .page-controls { display: flex; justify-content: center; align-items: center; gap: 12px; padding: 8px; border-top: 1px solid var(--line); font-size: 12px; }
 .page-controls button { min-height: 36px; border: 1px solid var(--line); color: var(--gold-bright); background: var(--surface); cursor: pointer; }
@@ -212,6 +279,9 @@ main { height: 100%; }
     gap: 12px;
     padding-top: 6px;
 }
+:root[data-device] .route-options.route-options-expanded {
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+}
 :root[data-device] .route-card {
     min-height: 0;
     flex-direction: column;
@@ -235,35 +305,49 @@ main { height: 100%; }
     font-size: 32px;
 }
 
-/* Portrait phones use three generous rows, with the icon beside the text. */
+/* Portrait phones keep route choices compact, with the icon beside the text. */
 :root[data-device="mobile"][data-orientation="portrait"] .route-heading {
     align-items: flex-start;
     flex-direction: column;
-    gap: 6px;
+    gap: 2px;
+    padding-bottom: 7px;
 }
-:root[data-device="mobile"][data-orientation="portrait"] .route-heading h2 { font-size: clamp(22px, 6vw, 30px); }
-:root[data-device="mobile"][data-orientation="portrait"] .route-history { gap: 4px; justify-content: center; }
-:root[data-device="mobile"][data-orientation="portrait"] .route-history-node { font-size: 16px; padding: 4px 6px; }
-:root[data-device="mobile"][data-orientation="portrait"] .route-connector { font-size: 18px; }
+:root[data-device="mobile"][data-orientation="portrait"] .route-heading .section-label { font-size: 12px; }
+:root[data-device="mobile"][data-orientation="portrait"] .route-heading h2 { font-size: clamp(21px, 5.5vw, 26px); }
+:root[data-device="mobile"][data-orientation="portrait"] .route-progress { font-size: 15px; line-height: 1.1; text-align: left; }
+:root[data-device="mobile"][data-orientation="portrait"] .route-history {
+    width: 100%;
+    flex-wrap: nowrap;
+    justify-content: flex-start;
+    gap: 4px;
+    overflow-x: auto;
+    white-space: nowrap;
+}
+:root[data-device="mobile"][data-orientation="portrait"] .route-history-node { flex: none; font-size: 15px; padding: 3px 6px; }
+:root[data-device="mobile"][data-orientation="portrait"] .route-connector { flex: none; font-size: 16px; }
 :root[data-device="mobile"][data-orientation="portrait"] .route-options {
     grid-template-columns: minmax(0, 1fr);
-    grid-template-rows: repeat(3, minmax(0, 1fr));
+    grid-template-rows: repeat(var(--route-option-count, 3), minmax(0, 1fr));
+    gap: 7px;
+    padding-top: 0;
 }
 :root[data-device="mobile"][data-orientation="portrait"] .route-card {
+    min-height: 0;
     flex-direction: row;
     justify-content: flex-start;
-    gap: 12px;
-    padding: 12px;
+    gap: 9px;
+    padding: 8px 10px;
     text-align: left;
 }
-:root[data-device="mobile"][data-orientation="portrait"] .route-icon { width: 52px; height: 52px; font-size: 28px; }
-:root[data-device="mobile"][data-orientation="portrait"] .route-card-copy { flex: 1; gap: 6px; }
-:root[data-device="mobile"][data-orientation="portrait"] .route-card-copy strong { font-size: 26px; }
-:root[data-device="mobile"][data-orientation="portrait"] .route-card-copy > span { font-size: 20px; }
-:root[data-device="mobile"][data-orientation="portrait"] .route-arrow { font-size: 24px; }
+:root[data-device="mobile"][data-orientation="portrait"] .route-icon { width: 42px; height: 42px; font-size: 23px; }
+:root[data-device="mobile"][data-orientation="portrait"] .route-card-copy { flex: 1; gap: 2px; }
+:root[data-device="mobile"][data-orientation="portrait"] .route-card-copy strong { font-size: 20px; line-height: 1.1; }
+:root[data-device="mobile"][data-orientation="portrait"] .route-card-copy > span { display: -webkit-box; overflow: hidden; font-size: 15px; line-height: 1.1; -webkit-box-orient: vertical; -webkit-line-clamp: 2; }
+:root[data-device="mobile"][data-orientation="portrait"] .route-arrow { flex: none; font-size: 20px; }
 
-/* Landscape phones keep three columns and reserve height for the choices. */
+/* Landscape phones use a compact grid and reserve height for the choices. */
 :root[data-device="mobile"][data-orientation="landscape"] .route-panel:has(.route-options:not([hidden])) { padding: 10px; gap: 6px; }
+:root[data-device="mobile"][data-orientation="landscape"] .route-options.route-options-expanded { grid-template-columns: repeat(2, minmax(0, 1fr)); grid-template-rows: repeat(2, minmax(0, 1fr)); }
 :root[data-device="mobile"][data-orientation="landscape"] .route-heading { flex-direction: row; gap: 12px; padding-bottom: 6px; }
 :root[data-device="mobile"][data-orientation="landscape"] .route-heading .section-label { font-size: 14px; }
 :root[data-device="mobile"][data-orientation="landscape"] .route-heading h2 { font-size: clamp(20px, 5vh, 28px); margin-top: 2px; }
@@ -276,3 +360,52 @@ main { height: 100%; }
 :root[data-device="mobile"][data-orientation="landscape"] .route-card-copy strong { font-size: 24px; }
 :root[data-device="mobile"][data-orientation="landscape"] .route-card-copy > span { font-size: 18px; line-height: 1.15; }
 :root[data-device="mobile"][data-orientation="landscape"] .route-arrow { font-size: 22px; }
+
+/* Keep route selection readable on ordinary mobile browsers too. */
+@media (max-width: 767px) {
+    .route-panel:has(.route-options:not([hidden])) {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        padding: 14px;
+    }
+    .route-heading {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 4px;
+        padding-bottom: 10px;
+    }
+    .route-heading h2 { font-size: clamp(22px, 6vw, 30px); line-height: 1.15; }
+    .route-progress { font-size: 15px; line-height: 1.25; text-align: left; }
+    .route-history {
+        min-height: 0;
+        justify-content: flex-start;
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        padding: 0 0 4px;
+        white-space: nowrap;
+    }
+    .route-history-node { flex: none; font-size: 14px; padding: 3px 7px; }
+    .route-connector { flex: none; font-size: 16px; }
+    .route-options {
+        flex: none;
+        grid-template-columns: minmax(0, 1fr);
+        grid-template-rows: none;
+        grid-auto-rows: minmax(104px, auto);
+        gap: 8px;
+        padding-top: 0;
+    }
+    .route-card {
+        min-height: 104px;
+        flex-direction: row;
+        justify-content: flex-start;
+        gap: 10px;
+        padding: 12px;
+        text-align: left;
+    }
+    .route-icon { width: 48px; height: 48px; font-size: 25px; }
+    .route-card-copy { flex: 1; gap: 4px; }
+    .route-card-copy strong { font-size: 20px; line-height: 1.1; }
+    .route-card-copy > span { font-size: 15px; line-height: 1.25; }
+    .route-arrow { position: static; flex: none; margin-left: 0; font-size: 22px; }
+}

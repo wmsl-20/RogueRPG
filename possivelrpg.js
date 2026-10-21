@@ -663,6 +663,7 @@ let categoriaInventario = "arma";
 let faseJogo = "batalha";
 let tipoEncontroAtual = "combate";
 let slotSaveAtual = null;
+const DEBUG_DEBUFFS_ALEATORIOS = false;
 
 const QUANTIDADE_SLOTS_SAVE = 4;
 const SALAS_ATE_BOSS = 15;
@@ -1116,21 +1117,25 @@ function renderizarInventario() {
     );
   }
 
-  const equipamentos = document.createElement("section");
-  equipamentos.className = "equipped-section";
-
-  const tituloEquipado = document.createElement("h3");
-  tituloEquipado.className = "inventory-label";
-  tituloEquipado.textContent = "EQUIPADOS";
-  equipamentos.append(tituloEquipado);
-
   const slots = [
     ["arma", "Arma", obterArmaAtual()],
     ["armadura", "Armadura", obterArmaduraAtual()],
     ["escudo", "Escudo", obterEscudoAtual()],
   ];
 
-  for (const [tipo, rotulo, item] of slots) {
+  const equipamentoDaCategoria = slots.find(
+    ([tipo]) => tipo === categoriaInventario,
+  );
+  if (equipamentoDaCategoria) {
+    const equipamentos = document.createElement("section");
+    equipamentos.className = "equipped-section";
+
+    const tituloEquipado = document.createElement("h3");
+    tituloEquipado.className = "inventory-label";
+    tituloEquipado.textContent = "EQUIPADO";
+    equipamentos.append(tituloEquipado);
+
+    const [tipo, rotulo, item] = equipamentoDaCategoria;
     const linha = document.createElement("div");
     linha.className = "equipment-slot";
 
@@ -1153,9 +1158,8 @@ function renderizarInventario() {
     detalhes.append(nomeSlot, valor);
     linha.append(icone, detalhes);
     equipamentos.append(linha);
+    area.append(equipamentos);
   }
-
-  area.append(equipamentos);
 
   const nomesCategoria = {
     arma: "ARMAS",
@@ -1394,10 +1398,66 @@ function mostrarRotas() {
     "route-options-expanded",
     opcoesDeRota.length > 3,
   );
+  interfaceJogo.routeOptions.style.setProperty(
+    "--route-option-count",
+    opcoesDeRota.length,
+  );
   for (const opcao of opcoesDeRota) {
     const botao = document.createElement("button");
     botao.type = "button";
     botao.className = "route-card";
+    if (opcao.id === "boss") {
+      botao.dataset.holdConfirm = "true";
+      let pointerHoldId = null;
+      const cancelarPressao = () => {
+        if (botao._holdConfirmTimer !== null && botao._holdConfirmTimer !== undefined) {
+          window.clearTimeout(botao._holdConfirmTimer);
+          botao._holdConfirmTimer = null;
+        }
+        document.removeEventListener("pointerup", aoSoltar);
+        document.removeEventListener("pointercancel", aoSoltar);
+        pointerHoldId = null;
+        botao.classList.remove("is-holding");
+      };
+      const aoSoltar = (evento) => {
+        if (evento.pointerId === pointerHoldId) cancelarPressao();
+      };
+      botao.addEventListener("pointerdown", (evento) => {
+        if (evento.button !== 0 || !evento.isPrimary || botao.disabled) return;
+        cancelarPressao();
+        pointerHoldId = evento.pointerId;
+        botao.classList.add("is-holding");
+        botao._holdConfirmTimer = window.setTimeout(() => {
+          botao._holdConfirmTimer = null;
+          if (!botao.isConnected) {
+            cancelarPressao();
+            return;
+          }
+          document.removeEventListener("pointerup", aoSoltar);
+          document.removeEventListener("pointercancel", aoSoltar);
+          pointerHoldId = null;
+          botao.classList.remove("is-holding");
+          botao.dataset.holdConfirmed = "true";
+          escolherRota(opcao.id);
+        }, 500);
+        document.addEventListener("pointerup", aoSoltar);
+        document.addEventListener("pointercancel", aoSoltar);
+      });
+      botao.addEventListener("pointerleave", cancelarPressao);
+      botao.addEventListener("click", (evento) => {
+        if (botao.dataset.holdConfirmed === "true") {
+          evento.preventDefault();
+          return;
+        }
+        if (evento.detail !== 0) {
+          evento.preventDefault();
+          return;
+        }
+        escolherRota(opcao.id);
+      });
+    } else {
+      botao.addEventListener("click", () => escolherRota(opcao.id));
+    }
     const icone = document.createElement("span");
     icone.className = "route-icon";
     icone.setAttribute("aria-hidden", "true");
@@ -1414,7 +1474,6 @@ function mostrarRotas() {
     seta.setAttribute("aria-hidden", "true");
     seta.textContent = "→";
     botao.append(icone, copia, seta);
-    botao.addEventListener("click", () => escolherRota(opcao.id));
     interfaceJogo.routeOptions.append(botao);
   }
 
@@ -1955,6 +2014,7 @@ function restaurarCombateSalvo(estado = player?.combat_state) {
     inimigo.boss && inimigo.nome === "Hidra"
       ? "🐍"
       : (sprites[inimigo.tipo] ?? "👾");
+  definirArteInimigo(interfaceJogo.enemyArt, inimigo);
   interfaceJogo.encounterKind.textContent = inimigos.some(
     (oponente) => oponente.boss,
   )
@@ -2202,6 +2262,9 @@ function criarInimigo(tipoEncontro = "combate") {
       level: ehChefe ? andar : nivel + andar - 1,
       boss: ehChefe,
       elite: tipoEncontro === "elite",
+      xp: Math.round(
+        (Number(base.xp) || 0) * fatorXp * (tipoEncontro === "elite" ? 1.5 : 1),
+      ),
       resistencia_fisica: normalizarResistencia(base.resistencia_fisica),
       resistencia_magica: normalizarResistencia(base.resistencia_magica),
       vida_max: Math.round(base.vida * fatorStatusVida * fatorChefe),
@@ -2259,6 +2322,7 @@ function criarInimigo(tipoEncontro = "combate") {
     ehChefe && inimigo.nome === "Hidra"
       ? "🐍"
       : (sprites[inimigo.tipo] ?? "👾");
+  definirArteInimigo(interfaceJogo.enemyArt, inimigo);
   interfaceJogo.encounterKind.textContent = ehChefe
     ? "CHEFE"
     : inimigos.length > 1
@@ -2322,6 +2386,31 @@ const bosses = {
 // ==============================
 // ATUALIZAÇÃO DA INTERFACE
 // ==============================
+
+function obterSpriteInimigo(alvo) {
+  const sprites = {
+    zumbi: "\u{1F9DF}",
+    slime: "\u{1F7E2}",
+    goblin: "\u{1F47A}",
+    esqueleto: "\u{1F480}",
+    orc: "\u{1F479}",
+    mago_inimigo: "\u{1F9D9}",
+    aranha_gigante: "\u{1F577}\uFE0F",
+    troll: "\u{1F9CC}",
+    boss: "\u{1F409}",
+  };
+  if (alvo.nome === "Minotauro") return "\u{1F402}";
+  if (alvo.nome === "Hidra") return "\u{1F40D}";
+  return sprites[alvo.tipo] ?? "\u{1F47E}";
+}
+
+function definirArteInimigo(elemento, alvo) {
+  const chave = `${alvo.tipo}:${alvo.nome}`;
+  if (elemento.dataset.arteInimigo === chave) return;
+  elemento.dataset.arteInimigo = chave;
+
+  elemento.replaceChildren(document.createTextNode(obterSpriteInimigo(alvo)));
+}
 
 function atualizarTela() {
   if (!player || (!inimigo && inimigos.length === 0)) return;
@@ -2527,7 +2616,6 @@ function atualizarTela() {
     debuffsAtivos.push("2 almas invocadas");
   }
   if (ehPaladino && player.bencao_ativa) debuffsAtivos.push("Bênção ativa");
-  interfaceJogo.playerDebuffs.hidden = debuffsAtivos.length === 0;
   interfaceJogo.playerDebuffs.textContent = debuffsAtivos.length
     ? `Efeitos: ${debuffsAtivos.join(" · ")}`
     : "";
@@ -2565,12 +2653,22 @@ function atualizarTela() {
     "Resistência reduz o dano; vulnerabilidade aumenta o dano recebido.";
 
   if (batalhaEmGrupo) {
-    interfaceJogo.enemyParty.replaceChildren();
-    for (const inimigoDoGrupo of inimigos) {
+    const cardsExistentes = [...interfaceJogo.enemyParty.children];
+    const precisaCriarCards =
+      cardsExistentes.length !== inimigos.length ||
+      inimigos.some(
+        (alvo, indice) => cardsExistentes[indice]?.dataset.enemyId !== alvo.id,
+      );
+
+    if (precisaCriarCards) {
+      interfaceJogo.enemyParty.replaceChildren();
+      for (const inimigoDoGrupo of inimigos) {
       const card = document.createElement("button");
       card.type = "button";
       card.className = "enemy-party-card";
+      card.dataset.enemyId = inimigoDoGrupo.id;
       card.classList.toggle("is-target", inimigoDoGrupo === inimigo);
+      card.setAttribute("aria-pressed", String(inimigoDoGrupo === inimigo));
       card.classList.toggle("is-defeated", inimigoDoGrupo.vida <= 0);
       const alvoMultishotSelecionado = alvosMultishotSelecionados.has(
         inimigoDoGrupo.id,
@@ -2581,6 +2679,7 @@ function atualizarTela() {
       }
       card.disabled = inimigoDoGrupo.vida <= 0 || !batalhaAtiva;
       card.addEventListener("click", () => {
+        const armaMultishot = obterArmaAtual()?.multi_shot ?? 0;
         if (armaMultishot > 0) {
           if (alvosMultishotSelecionados.has(inimigoDoGrupo.id)) {
             alvosMultishotSelecionados.delete(inimigoDoGrupo.id);
@@ -2598,21 +2697,34 @@ function atualizarTela() {
             alvosMultishotSelecionados.add(inimigoDoGrupo.id);
             inimigo = inimigoDoGrupo;
           }
-          const quantidadeAlvos = alvosMultishotSelecionados.size;
-          interfaceJogo.message.textContent =
-            quantidadeAlvos > 0
-              ? `${quantidadeAlvos} alvo(s) selecionado(s) para o multishot.`
-              : `Alvo selecionado: ${inimigo.nome}.`;
         } else {
           inimigo = inimigoDoGrupo;
-          interfaceJogo.message.textContent = `Alvo selecionado: ${inimigo.nome}.`;
         }
-        atualizarTela();
+        for (const cartao of interfaceJogo.enemyParty.querySelectorAll("[data-enemy-id]")) {
+          const selecionado = cartao.dataset.enemyId === inimigo.id;
+          const selecionadoMultishot = alvosMultishotSelecionados.has(
+            cartao.dataset.enemyId,
+          );
+          cartao.classList.toggle("is-target", selecionado);
+          cartao.classList.toggle(
+            "is-multishot-target",
+            armaMultishot > 0 && selecionadoMultishot,
+          );
+          cartao.setAttribute(
+            "aria-pressed",
+            String(armaMultishot > 0 ? selecionadoMultishot : selecionado),
+          );
+        }
         salvarJogo();
       });
+      const arte = document.createElement("span");
+      arte.className = "enemy-party-art";
+      arte.textContent = obterSpriteInimigo(inimigoDoGrupo);
+      arte.setAttribute("aria-hidden", "true");
       const nome = document.createElement("strong");
       nome.textContent = inimigoDoGrupo.nome;
       const vida = document.createElement("span");
+      vida.dataset.enemyHealth = "true";
       vida.textContent =
         inimigoDoGrupo.vida <= 0
           ? "Derrotado"
@@ -2630,8 +2742,35 @@ function atualizarTela() {
       resistencias.textContent = descreverResistencias(inimigoDoGrupo);
       resistencias.title =
         "Resistência reduz o dano; vulnerabilidade aumenta o dano recebido.";
-      card.append(nome, vida, barra, resistencias);
+      card.append(arte, nome, vida, barra, resistencias);
       interfaceJogo.enemyParty.append(card);
+      }
+    }
+
+    for (const [indice, inimigoDoGrupo] of inimigos.entries()) {
+      const card = interfaceJogo.enemyParty.children[indice];
+      const derrotado = inimigoDoGrupo.vida <= 0;
+      const selecionadoMultishot = alvosMultishotSelecionados.has(
+        inimigoDoGrupo.id,
+      );
+      card.classList.toggle("is-target", inimigoDoGrupo === inimigo);
+      card.classList.toggle("is-defeated", derrotado);
+      card.classList.toggle(
+        "is-multishot-target",
+        armaMultishot > 0 && selecionadoMultishot,
+      );
+      card.disabled = derrotado || !batalhaAtiva;
+      card.setAttribute(
+        "aria-pressed",
+        String(armaMultishot > 0 ? selecionadoMultishot : inimigoDoGrupo === inimigo),
+      );
+      card.querySelector("[data-enemy-health]").textContent = derrotado
+        ? "Derrotado"
+        : `${Math.ceil(inimigoDoGrupo.vida)} / ${inimigoDoGrupo.vida_max} HP`;
+      card.querySelector(".enemy-party-health > span").style.width = `${Math.max(
+        0,
+        (inimigoDoGrupo.vida / inimigoDoGrupo.vida_max) * 100,
+      )}%`;
     }
   } else if (inimigo) {
     interfaceJogo.enemyName.textContent = inimigo.nome;
@@ -2790,7 +2929,7 @@ function concluirVitoria() {
   player.debuffs = {};
 
   const xpTotal = inimigosDerrotados.reduce(
-    (total, derrotado) => total + derrotado.xp,
+    (total, derrotado) => total + (Number(derrotado.xp) || 0),
     0,
   );
   const prataTotal = inimigosDerrotados.reduce(
@@ -2801,7 +2940,7 @@ function concluirVitoria() {
     (total, derrotado) => total + derrotado.ouro,
     0,
   );
-  player.experiencia += xpTotal;
+  player.experiencia = (Number(player.experiencia) || 0) + xpTotal;
   player.prata += prataTotal;
   player.ouro += ouroTotal;
   definirMoedasDePrata(obterMoedasEmPrata());
@@ -2965,9 +3104,30 @@ function concluirVitoria() {
   atualizarBotaoBatalha();
 
   atualizarTela();
-  mostrarRotas();
-
   salvarJogo();
+
+  const duracaoTransicao = 1200;
+  const conteudoJogo = document.querySelector("#game-content");
+  const botoesDuranteTransicao = [...conteudoJogo.querySelectorAll("button")];
+  const estadosDosBotoes = botoesDuranteTransicao.map((botao) => botao.disabled);
+  conteudoJogo.classList.add("is-finalizing-battle");
+  botoesDuranteTransicao.forEach((botao) => {
+    botao.disabled = true;
+  });
+  const arena = document.querySelector(".arena");
+  arena.classList.remove("is-enemy-defeated");
+  void arena.offsetWidth;
+  arena.classList.add("is-enemy-defeated");
+  interfaceJogo.message.textContent = "Inimigo derrotado!";
+
+  window.setTimeout(() => {
+    arena.classList.remove("is-enemy-defeated");
+    conteudoJogo.classList.remove("is-finalizing-battle");
+    botoesDuranteTransicao.forEach((botao, indice) => {
+      botao.disabled = estadosDosBotoes[indice];
+    });
+    mostrarRotas();
+  }, duracaoTransicao);
 }
 
 // ==============================
@@ -3034,6 +3194,20 @@ function aplicarDebuffJogador(
 }
 
 function aplicarEfeitoDoInimigo(oponente) {
+  if (DEBUG_DEBUFFS_ALEATORIOS) {
+    // Temporary debug mode: every enemy attack applies a random effect.
+    const efeitosDeTeste = [
+      () => aplicarDebuffJogador("pegajoso", "Pegajoso", 2, 0, 0.75),
+      () => aplicarDebuffJogador("veneno", "Veneno", 3, player.vida_max * 0.025),
+      () => aplicarDebuffJogador("lentidao", "LentidÃ£o", 2, 0, 0.75),
+      () => aplicarDebuffJogador("sangramento", "Sangramento", 3, player.vida_max * 0.02, 0.85),
+      () => aplicarDebuffJogador("queimando", "Queimando", 3, player.vida_max * 0.025),
+    ];
+    efeitosDeTeste[Math.floor(Math.random() * efeitosDeTeste.length)]();
+    atualizarTela();
+    return;
+  }
+
   const rolagem = Math.random();
   if (oponente.tipo === "slime") {
     aplicarDebuffJogador("pegajoso", "Pegajoso", 2, 0, 0.75);
@@ -3166,7 +3340,9 @@ function ataqueInimigo(oponente = inimigo) {
   registrarMensagem(
     `${oponente.nome} causou ${Math.ceil(danoRecebido)} de dano ${tipoFormatado}${efeitoResistencia} em você.`,
   );
-  if (danoRecebido > 0) aplicarEfeitoDoInimigo(oponente);
+  if (DEBUG_DEBUFFS_ALEATORIOS || danoRecebido > 0) {
+    aplicarEfeitoDoInimigo(oponente);
+  }
 
   if (player.vida_atual <= 0) {
     finalizarDerrota();
