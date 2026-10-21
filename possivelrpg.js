@@ -6,12 +6,12 @@ const classe_guerreiro = {
   classe: "guerreiro",
 
   // Vida
-  vida_max: 120,
-  vida_atual: 120,
+  vida_max: 130,
+  vida_atual: 130,
   // Status
-  dmg: 18,
-  resistencia_fisica: 10,
-  resistencia_magica: 0,
+  dmg: 24,
+  resistencia_fisica: 20,
+  resistencia_magica: 10,
   speed_max: 10,
   speed_atual: 10,
   critico_chance: 5,
@@ -106,12 +106,12 @@ const classe_mago = {
 
 const classe_necromante = {
   classe: "necromante",
-  vida_max: 75,
-  vida_atual: 75,
+  vida_max: 90,
+  vida_atual: 90,
   mana_max: 100,
   mana_atual: 100,
   dmg: 30,
-  resistencia_fisica: 0,
+  resistencia_fisica: 5,
   resistencia_magica: 12,
   speed_max: 8,
   speed_atual: 8,
@@ -168,7 +168,7 @@ const classe_paladino = {
   bencao_ativa: false,
   bencao: {
     fe_custo: 50,
-    roubo_vida: 0.3, // cura 30% do dano causado em ataques normais enquanto ativa
+    roubo_vida: 0.4, // cura 40% do dano causado em ataques normais enquanto ativa
   },
 };
 
@@ -252,6 +252,35 @@ const maça_sagrada = {
   tipo: "arma",
   nome: "Maça sagrada",
   dmg: 5,
+};
+
+const martelo_de_ferro = {
+  id: "martelo_de_ferro",
+  classe: "paladino",
+  tipo: "arma",
+  nome: "Martelo de ferro",
+  dmg: 6,
+};
+const martelo_de_guerra = {
+  id: "martelo_de_guerra",
+  classe: "paladino",
+  tipo: "arma",
+  nome: "Martelo de guerra",
+  dmg: 8,
+};
+const espada_da_ordem = {
+  id: "espada_da_ordem",
+  classe: "paladino",
+  tipo: "arma",
+  nome: "Espada da Ordem",
+  dmg: 10,
+};
+const martelo_do_juramento = {
+  id: "martelo_do_juramento",
+  classe: "paladino",
+  tipo: "arma",
+  nome: "Martelo do Juramento",
+  dmg: 13,
 };
 
 // ==============================
@@ -499,6 +528,10 @@ const ITENS = {
   escudo_de_ferro,
   escudo_do_minotauro,
   armadura_de_placas_do_minotauro,
+  martelo_de_ferro,
+  martelo_de_guerra,
+  espada_da_ordem,
+  martelo_do_juramento,
 };
 
 // ==============================
@@ -652,7 +685,10 @@ const OFERTAS_LOJA = [
   { id: "espada_de_ferro_basica", preco: 35 },
   { id: "maca", preco: 55 },
   { id: "espada_longa", preco: 90 },
-  { id: "maca_sagrada", preco: 55 },
+  { id: "martelo_de_ferro", preco: 40 },
+  { id: "martelo_de_guerra", preco: 65 },
+  { id: "espada_da_ordem", preco: 95 },
+  { id: "martelo_do_juramento", preco: 130 },
   { id: "arco_de_bambu_basico", preco: 35 },
   { id: "besta", preco: 55 },
   { id: "arco_composto", preco: 90 },
@@ -669,6 +705,7 @@ const OFERTAS_LOJA = [
   { id: "escudo_de_ferro", preco: 85 },
   { id: "cura_loja", preco: 20 },
   { id: "pocao_mana_loja", preco: 25 },
+  { id: "cetro_sombrio", preco: 110 },
 ];
 
 function chaveSave(slot) {
@@ -2043,7 +2080,7 @@ function criarInimigo(tipoEncontro = "combate") {
       nome: "Slime",
       tipo_dano: "fisico",
       vida: 55,
-      dmg: 11,
+      dmg: 8,
       xp: 9,
       speed: 10,
       prata: 4,
@@ -2055,7 +2092,7 @@ function criarInimigo(tipoEncontro = "combate") {
       nome: "Zumbi",
       tipo_dano: "fisico",
       vida: 80,
-      dmg: 14,
+      dmg: 11,
       xp: 12,
       speed: 9,
       prata: 10,
@@ -2067,7 +2104,7 @@ function criarInimigo(tipoEncontro = "combate") {
       nome: "Goblin",
       tipo_dano: "fisico",
       vida: 70,
-      dmg: 18,
+      dmg: 14,
       xp: 16,
       speed: 15,
       prata: 14,
@@ -2079,7 +2116,7 @@ function criarInimigo(tipoEncontro = "combate") {
       nome: "Esqueleto",
       tipo_dano: "fisico",
       vida: 90,
-      dmg: 20,
+      dmg: 15,
       xp: 20,
       speed: 18,
       prata: 18,
@@ -2091,7 +2128,7 @@ function criarInimigo(tipoEncontro = "combate") {
       nome: "Orc",
       tipo_dano: "fisico",
       vida: 135,
-      dmg: 20,
+      dmg: 15,
       xp: 30,
       speed: 10,
       prata: 22,
@@ -2103,7 +2140,7 @@ function criarInimigo(tipoEncontro = "combate") {
       nome: "Mago Inimigo",
       tipo_dano: "magico",
       vida: 65,
-      dmg: 26,
+      dmg: 20,
       xp: 24,
       speed: 12,
       prata: 20,
@@ -2115,7 +2152,7 @@ function criarInimigo(tipoEncontro = "combate") {
       nome: "Aranha Gigante",
       tipo_dano: "fisico",
       vida: 120,
-      dmg: 22,
+      dmg: 17,
       xp: 28,
       speed: 14,
       prata: 25,
@@ -2127,7 +2164,7 @@ function criarInimigo(tipoEncontro = "combate") {
       nome: "Troll",
       tipo_dano: "fisico",
       vida: 150,
-      dmg: 30,
+      dmg: 23,
       xp: 35,
       speed: 8,
       prata: 30,
@@ -2140,12 +2177,15 @@ function criarInimigo(tipoEncontro = "combate") {
   function criarInimigoIndividual(tipo, chefe = null) {
     const base = chefe ?? modelos[tipo];
     const fatorElite = tipoEncontro === "elite" ? 1.5 : 1;
-    const fatorCombate = 1.12 ** (nivel - 1);
+    const fatorCombate = 1.06 ** (nivel - 1);
     const fatorAndar = 1.2 ** (andar - 1);
     const fatorChefe = ehChefe ? 1.2 : 1;
     const fatorJogador = ehChefe ? 1 : fatorCombate;
     const fatorXp = (ehChefe ? 1 : 1.05 ** (nivel - 1)) * fatorAndar;
-    const fatorStatus = fatorJogador * fatorAndar * fatorElite;
+    const fatorEliteVida = tipoEncontro === "elite" ? 1.4 : 1;
+    const fatorEliteDano = tipoEncontro === "elite" ? 1.2 : 1;
+    const fatorStatusVida = fatorJogador * fatorAndar * fatorEliteVida;
+    const fatorStatusDano = fatorJogador * fatorAndar * fatorEliteDano;
     return {
       tipo,
       nome: base.nome,
@@ -2155,10 +2195,9 @@ function criarInimigo(tipoEncontro = "combate") {
       elite: tipoEncontro === "elite",
       resistencia_fisica: normalizarResistencia(base.resistencia_fisica),
       resistencia_magica: normalizarResistencia(base.resistencia_magica),
-      vida_max: Math.round(base.vida * fatorStatus * fatorChefe),
-      vida: Math.round(base.vida * fatorStatus * fatorChefe),
-      dmg: Math.round(base.dmg * fatorStatus * (ehChefe ? 1.08 : 1)),
-      xp: Math.round(base.xp * fatorXp * fatorElite),
+      vida_max: Math.round(base.vida * fatorStatusVida * fatorChefe),
+      vida: Math.round(base.vida * fatorStatusVida * fatorChefe),
+      dmg: Math.round(base.dmg * fatorStatusDano * (ehChefe ? 1.08 : 1)),
       speed: Math.round(
         (base.speed +
           (ehChefe ? 0 : nivel - 1) +
@@ -2236,8 +2275,8 @@ const bosses = {
   minotauro: {
     nome: "Minotauro",
     tipo_dano: "fisico",
-    vida: 450,
-    dmg: 70,
+    vida: 250,
+    dmg: 31,
     xp: 110,
     speed: 18,
     prata: 200,
@@ -2248,8 +2287,8 @@ const bosses = {
   dragao: {
     nome: "Dragão",
     tipo_dano: "magico",
-    vida: 400,
-    dmg: 40,
+    vida: 220,
+    dmg: 18,
     xp: 90,
     speed: 20,
     prata: 100,
@@ -2260,8 +2299,8 @@ const bosses = {
   hidra: {
     nome: "Hidra",
     tipo_dano: "fisico",
-    vida: 400,
-    dmg: 60,
+    vida: 220,
+    dmg: 27,
     xp: 100,
     speed: 15,
     prata: 150,
@@ -2295,7 +2334,7 @@ function atualizarTela() {
   const ehMago = player.classe === "mago";
   const ehNecromante = player.classe === "necromante";
   const ehPaladino = player.classe === "paladino";
-  const limiteFuria = 25 + 0.4 * (player.level - 1);
+  const limiteFuria = 30 + 0.4 * (player.level - 1);
   const percentualVidaAlvo = inimigo
     ? (inimigo.vida / inimigo.vida_max) * 100
     : 100;
@@ -2817,7 +2856,7 @@ function concluirVitoria() {
   // Cura pós-batalha
   // ------------------------------
 
-  const cura = (player.vida_max - player.vida_atual) * 0.25;
+  const cura = (player.vida_max - player.vida_atual) * 0.4;
 
   player.vida_atual += cura;
 
@@ -3392,6 +3431,7 @@ function executarAcaoJogador(acao) {
     const alvosDoAtaque =
       alvosSelecionados.length > 0 ? alvosSelecionados : [inimigo];
     let danoTotalCausado = 0;
+    const danoBasePersonagem = player.dmg * (1 - obterPenalidadeArma(arma));
     for (let tiro = 0; tiro < tiros; tiro += 1) {
       const vivos = alvosDoAtaque.filter((alvo) => alvo.vida > 0);
       if (vivos.length === 0) break;
@@ -3399,9 +3439,11 @@ function executarAcaoJogador(acao) {
       for (const componente of danosAtaque) {
         danoTotalCausado += causarDanoInimigo(
           alvo,
-          calcularDanoCritico(componente.dano),
-          tiros > 1 ? " (multishot)" : "",
-          componente.tipo,
+          calcularDanoCritico(
+            tiro === 0
+              ? componente.dano
+              : Math.max(0, componente.dano - danoBasePersonagem),
+          ),
         );
       }
     }
@@ -3505,7 +3547,7 @@ function jogarTurno(acao) {
   }
 
   if (acao === "furia") {
-    const limiteFuria = 25 + 0.4 * (player.level - 1);
+    const limiteFuria = 30 + 0.4 * (player.level - 1);
     if (
       player.classe !== "guerreiro" ||
       player.furia_ativa ||
