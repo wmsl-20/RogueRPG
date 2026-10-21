@@ -748,6 +748,7 @@ h1, .modal-header h2 {
 .enemy-fill { margin-left: auto; background: linear-gradient(90deg, #e78369, #c65a57 55%, #7c303a); }
 .xp-fill { background: linear-gradient(90deg, #f5d78d, #e9b54c 55%, #a96e27); }
 .mana-fill { background: linear-gradient(90deg, #9bc1ff, #4d87ff 55%, #294aa7); }
+.faith-fill { background: linear-gradient(90deg, #fff0ad, #e2ba63 55%, #9e6c25); }
 
 .message {
     min-height: 43px;
@@ -1248,6 +1249,10 @@ h1, .modal-header h2 {
 .shop-item strong { color: var(--ink); font-size: 13px; }
 .shop-item > div > span { color: var(--muted); font-size: 11px; line-height: 1.5; }
 .shop-item .shop-price { color: var(--gold); }
+.shop-item .shop-compare { width: fit-content; }
+.shop-compare-melhor { color: var(--green) !important; }
+.shop-compare-pior { color: var(--red) !important; }
+.shop-compare-igual { color: var(--muted) !important; }
 .shop-item .item-button:disabled { cursor: not-allowed; opacity: .45; }
 #refresh-shop-button { width: 100%; margin-bottom: 10px; }
 #leave-shop-button { width: 100%; }

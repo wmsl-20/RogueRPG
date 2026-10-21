@@ -131,6 +131,47 @@ const classe_necromante = {
   almas_invocadas: 0,
 };
 
+const classe_paladino = {
+  classe: "paladino",
+
+  // Vida
+  vida_max: 100,
+  vida_atual: 100,
+  // Status
+  dmg: 20,
+  resistencia_fisica: 8,
+  resistencia_magica: 8,
+  speed_max: 8,
+  speed_atual: 8,
+  critico_chance: 8,
+  critico_dano: 2,
+  // Cura
+  curas_max: 2,
+  curas_atual: 2,
+  // Fé (recurso próprio do Paladino)
+  fe_max: 100,
+  fe_atual: 100,
+  // Moedas
+  ouro: 0,
+  prata: 0,
+  // Progressão
+  level: 1,
+  experiencia: 0,
+  run_drop_ids: [],
+  // Golpe Sagrado: ataque mágico pontual, ignora parte da defesa do inimigo
+  golpe_sagrado: {
+    fe_custo: 40,
+    magic_dmg: 24,
+    ignora_defesa: 0.3, // ignora 30% da defesa do inimigo no cálculo de redução
+  },
+  // Bênção: buff ativo até o fim do combate, dá roubo de vida nos ataques normais
+  bencao_ativa: false,
+  bencao: {
+    fe_custo: 50,
+    roubo_vida: 0.5, // cura 25% do dano causado em ataques normais enquanto ativa
+  },
+};
+
 // ==============================
 // CLASSES ORGANIZADAS
 // ==============================
@@ -140,6 +181,7 @@ const classes = {
   arqueiro: classe_arqueiro,
   mago: classe_mago,
   necromante: classe_necromante,
+  paladino: classe_paladino,
 };
 
 const NOMES_CLASSES = {
@@ -147,6 +189,7 @@ const NOMES_CLASSES = {
   arqueiro: "Arqueiro",
   mago: "Mago",
   necromante: "Necromante",
+  paladino: "Paladino",
 };
 
 // ==============================
@@ -201,6 +244,14 @@ const machado_duplo_do_minotauro = {
   nome: "Machado duplo do Minotauro",
   dmg: 17,
   area_dmg: 10,
+};
+
+const maça_sagrada = {
+  id: "maca_sagrada",
+  classe: "paladino",
+  tipo: "arma",
+  nome: "Maça sagrada",
+  dmg: 5,
 };
 
 // ==============================
@@ -305,7 +356,7 @@ const grimorio_misterioso = {
   tipo: "arma",
   nome: "Grimório misterioso",
   fisico_dmg: 1,
-  magic_dmg: 25,
+  magic_dmg: 17,
   mana_custo: 30,
 };
 
@@ -328,6 +379,7 @@ const armasIniciais = {
   arqueiro: arco_inicial,
   mago: cajado_inicial,
   necromante: grimorio_misterioso,
+  paladino: maça_sagrada,
 };
 
 const escudo_de_madeira = {
@@ -424,6 +476,7 @@ const ITENS = {
   espada_inicial,
   espada_de_ferro_basica,
   maca: maça,
+  maca_sagrada: maça_sagrada,
   espada_longa,
   arco_inicial,
   arco_de_bambu_basico,
@@ -528,6 +581,12 @@ const interfaceJogo = {
   mageSkill: document.querySelector("#mage-skill-button"),
   necromancerSteal: document.querySelector("#necromancer-steal-button"),
   necromancerSummon: document.querySelector("#necromancer-summon-button"),
+  paladinSkill: document.querySelector("#paladin-skill-button"),
+  paladinBlessing: document.querySelector("#paladin-blessing-button"),
+  faithStat: document.querySelector("#faith-stat"),
+  playerFaith: document.querySelector("#player-faith"),
+  playerFaithBar: document.querySelector("#player-faith-bar"),
+  playerFaithProgress: document.querySelector("#player-faith-progress"),
 
   continue: document.querySelector("#continue-button"),
   restart: document.querySelector("#restart-button"),
@@ -587,11 +646,13 @@ const DEFESA_BASE_LEGADA = {
   arqueiro: 6,
   mago: 3,
   necromante: 0,
+  paladino: 7,
 };
 const OFERTAS_LOJA = [
   { id: "espada_de_ferro_basica", preco: 35 },
   { id: "maca", preco: 55 },
   { id: "espada_longa", preco: 90 },
+  { id: "maca_sagrada", preco: 55 },
   { id: "arco_de_bambu_basico", preco: 35 },
   { id: "besta", preco: 55 },
   { id: "arco_composto", preco: 90 },
@@ -724,7 +785,6 @@ function registrarPenalidadeArma(arma) {
     );
   }
 }
-
 function obterVelocidadeBase() {
   return Math.max(
     0,
@@ -782,6 +842,22 @@ function prepararInventario(jogador) {
     4,
     Math.max(0, Math.floor(Number(jogador.almas) || 0)),
   );
+  if (jogador.classe === "paladino") {
+    jogador.fe_max =
+      Number.isFinite(Number(jogador.fe_max)) && Number(jogador.fe_max) > 0
+        ? Number(jogador.fe_max)
+        : classe_paladino.fe_max;
+    jogador.fe_atual = Math.min(
+      jogador.fe_max,
+      Math.max(
+        0,
+        Number.isFinite(Number(jogador.fe_atual))
+          ? Number(jogador.fe_atual)
+          : jogador.fe_max,
+      ),
+    );
+    jogador.bencao_ativa = Boolean(jogador.bencao_ativa);
+  }
   jogador.almas_invocadas = 0;
   jogador.furia_ativa = false;
   jogador.skill_cooldown_salas = Math.max(
@@ -1060,10 +1136,30 @@ function renderizarInventario() {
 
       return item.tipo === categoriaInventario;
     });
+  if (categoriaInventario !== "arma") {
+    itens.sort((a, b) => {
+      const equipadoA = player.equipado[a.tipo] === a.id ? 1 : 0;
+      const equipadoB = player.equipado[b.tipo] === b.id ? 1 : 0;
+      return equipadoB - equipadoA;
+    });
+  }
 
   if (categoriaInventario === "arma") {
-    const ordemClasses = ["guerreiro", "arqueiro", "mago", "necromante"];
+    const ordemClasses = [
+      "guerreiro",
+      "arqueiro",
+      "mago",
+      "necromante",
+      "paladino",
+    ];
     itens.sort((primeiro, segundo) => {
+      const equipadoPrimeiro =
+        player.equipado[primeiro.tipo] === primeiro.id ? 1 : 0;
+      const equipadoSegundo =
+        player.equipado[segundo.tipo] === segundo.id ? 1 : 0;
+      if (equipadoPrimeiro !== equipadoSegundo) {
+        return equipadoSegundo - equipadoPrimeiro;
+      }
       const ordemPrimeiro = ordemClasses.indexOf(primeiro.classe);
       const ordemSegundo = ordemClasses.indexOf(segundo.classe);
       const diferenca =
@@ -1333,10 +1429,14 @@ function escolherRota(tipo) {
       player.pocoes_mana_atual = player.pocoes_mana_max;
       player.pocao_ticks = null;
     }
+    if (player.classe === "paladino") {
+      player.fe_atual = player.fe_max;
+      player.bencao_ativa = false;
+    }
     player.curas_loja = player.curas_loja_max;
     player.pocoes_mana_loja = player.pocoes_mana_loja_max;
     registrarMensagem(
-      "O acampamento restaurou toda a sua vida, mana e poções.",
+      "O acampamento restaurou toda a sua vida, mana, fé e poções.",
     );
     mostrarRotas();
     atualizarTela();
@@ -1388,6 +1488,52 @@ function obterPrecoAtualizarLoja() {
   );
 }
 
+function pontuarEquipamento(item) {
+  if (item.tipo === "arma") {
+    const danoFisico = item.dmg ?? item.fisico_dmg ?? 0;
+    const danoMagico = item.magic_dmg ?? 0;
+    const danoBase =
+      player.dmg +
+      (danoMagico > 0 ? (danoFisico + danoMagico) / 2 : danoFisico);
+    const tiros = 1 + (item.multi_shot ?? 0);
+    const danoExtra =
+      (item.area_dmg ?? 0) +
+      (item.veneno_dano ?? 0) * (item.veneno_duration ?? 0) * 0.25;
+    const penalidade = obterPenalidadeArma(item);
+    return (
+      ((danoBase * tiros + danoExtra) / (1 + (item.reload_time ?? 0) * 0.25)) *
+      (1 - penalidade)
+    );
+  }
+
+  const resistencias =
+    (item.resistencia_fisica ?? 0) + (item.resistencia_magica ?? 0);
+  if (item.tipo === "armadura") {
+    return (
+      resistencias +
+      (item.mana_bonus ?? 0) * 0.5 +
+      (item.mana_regeneracao ?? 0) * 2 +
+      (item.speed ?? 0) -
+      (item.speed_penalty ?? 0)
+    );
+  }
+
+  return (
+    resistencias +
+    (item.bonus_chance_de_defender ?? 0) * 0.25 -
+    (item.speed_penalty ?? 0)
+  );
+}
+
+function compararComEquipado(item) {
+  const equipado = ITENS[player.equipado?.[item.tipo]];
+  if (!equipado) return null;
+
+  const diferenca = pontuarEquipamento(item) - pontuarEquipamento(equipado);
+  if (Math.abs(diferenca) < 0.01) return "igual";
+  return diferenca > 0 ? "melhor" : "pior";
+}
+
 function renderizarLoja() {
   if (!player.shop_offers_initialized) {
     gerarOfertasLoja();
@@ -1433,6 +1579,19 @@ function renderizarLoja() {
     precoElemento.className = "shop-price";
     precoElemento.textContent = `Preço: ${formatarPreco(oferta.preco)}`;
     detalhes.append(nomeElemento, descricaoElemento, precoElemento);
+
+    const comparacao = consumivel ? null : compararComEquipado(item);
+    if (comparacao) {
+      const selo = document.createElement("span");
+      selo.className = `shop-compare shop-compare-${comparacao}`;
+      selo.textContent =
+        comparacao === "melhor"
+          ? "▲ Upgrade"
+          : comparacao === "pior"
+            ? "▼ Abaixo do atual"
+            : "— Igual ao atual";
+      detalhes.append(selo);
+    }
 
     const botao = document.createElement("button");
     botao.type = "button";
@@ -1546,6 +1705,7 @@ function iniciarCombate(tipoEncontro = "combate") {
   defendendo = false;
   player.debuffs = {};
   player.furia_ativa = false;
+  player.bencao_ativa = false;
   player.almas_invocadas = 0;
   alvosMultishotSelecionados.clear();
   interfaceJogo.routePanel.hidden = true;
@@ -2134,6 +2294,7 @@ function atualizarTela() {
   const ehArqueiro = player.classe === "arqueiro";
   const ehMago = player.classe === "mago";
   const ehNecromante = player.classe === "necromante";
+  const ehPaladino = player.classe === "paladino";
   const limiteFuria = 10 + 0.4 * (player.level - 1);
   const percentualVidaAlvo = inimigo
     ? (inimigo.vida / inimigo.vida_max) * 100
@@ -2171,6 +2332,18 @@ function atualizarTela() {
     player.almas < 2 ||
     player.mana_atual < 65 ||
     player.almas_invocadas > 0;
+  interfaceJogo.paladinSkill.hidden = !ehPaladino;
+  interfaceJogo.paladinSkill.textContent = `Golpe Sagrado (${classe_paladino.golpe_sagrado.fe_custo} fé)`;
+  interfaceJogo.paladinSkill.disabled =
+    !batalhaAtiva || player.fe_atual < classe_paladino.golpe_sagrado.fe_custo;
+  interfaceJogo.paladinBlessing.hidden = !ehPaladino;
+  interfaceJogo.paladinBlessing.textContent = player.bencao_ativa
+    ? "Bênção ativa (até o fim do combate)"
+    : `Bênção (${classe_paladino.bencao.fe_custo} fé)`;
+  interfaceJogo.paladinBlessing.disabled =
+    !batalhaAtiva ||
+    player.bencao_ativa ||
+    player.fe_atual < classe_paladino.bencao.fe_custo;
 
   const vidaJogador = Math.max(0, player.vida_atual);
 
@@ -2272,6 +2445,20 @@ function atualizarTela() {
       player.pocoes_mana_loja <= 0 ||
       player.mana_atual >= manaMaxima;
   }
+  interfaceJogo.faithStat.hidden = !ehPaladino;
+  if (ehPaladino) {
+    const percentualFe = Math.min(100, (player.fe_atual / player.fe_max) * 100);
+    interfaceJogo.playerFaith.textContent = `${Math.ceil(player.fe_atual)} / ${Math.ceil(player.fe_max)}`;
+    interfaceJogo.playerFaithBar.style.width = `${percentualFe}%`;
+    interfaceJogo.playerFaithProgress.setAttribute(
+      "aria-valuemax",
+      player.fe_max,
+    );
+    interfaceJogo.playerFaithProgress.setAttribute(
+      "aria-valuenow",
+      Math.round(percentualFe),
+    );
+  }
 
   const descricoesDebuff = {
     pegajoso: "Pegajoso",
@@ -2287,6 +2474,7 @@ function atualizarTela() {
   if (ehNecromante && player.almas_invocadas > 0) {
     debuffsAtivos.push("2 almas invocadas");
   }
+  if (ehPaladino && player.bencao_ativa) debuffsAtivos.push("Bênção ativa");
   interfaceJogo.playerDebuffs.hidden = debuffsAtivos.length === 0;
   interfaceJogo.playerDebuffs.textContent = debuffsAtivos.length
     ? `Efeitos: ${debuffsAtivos.join(" · ")}`
@@ -2490,6 +2678,7 @@ function novaRun() {
   player.andar = 1;
   player.skill_cooldown_salas = 0;
   player.furia_ativa = false;
+  player.bencao_ativa = false;
   player.almas = 0;
   player.almas_invocadas = 0;
   player.reload_turns_remaining = 0;
@@ -2503,6 +2692,9 @@ function novaRun() {
     player.mana_atual = player.mana_max;
     player.pocoes_mana_atual = player.pocoes_mana_max;
     player.pocao_ticks = null;
+  }
+  if (player.classe === "paladino") {
+    player.fe_atual = player.fe_max;
   }
 
   player.equipado = {
@@ -2539,6 +2731,7 @@ function novaRun() {
 function concluirVitoria() {
   batalhaAtiva = false;
   player.furia_ativa = false;
+  player.bencao_ativa = false;
   player.almas_invocadas = 0;
   player.reload_turns_remaining = 0;
   player.reload_weapon_id = null;
@@ -2612,6 +2805,14 @@ function concluirVitoria() {
     }
   }
 
+  if (player.classe === "paladino") {
+    const feRecuperada = (player.fe_max - player.fe_atual) * 0.25;
+    player.fe_atual += feRecuperada;
+    if (feRecuperada > 0) {
+      registrarMensagem(`Você recuperou ${Math.ceil(feRecuperada)} de fé.`);
+    }
+  }
+
   // ------------------------------
   // Cura pós-batalha
   // ------------------------------
@@ -2658,6 +2859,9 @@ function concluirVitoria() {
         player.pocoes_mana_max += 1;
       }
     }
+    if (player.classe === "paladino") {
+      player.fe_max += 10;
+    }
   }
 
   if (niveisGanhos > 0) {
@@ -2668,6 +2872,9 @@ function concluirVitoria() {
     if (usaMana()) {
       player.mana_atual = obterManaMaxima();
       player.pocoes_mana_atual = player.pocoes_mana_max;
+    }
+    if (player.classe === "paladino") {
+      player.fe_atual = player.fe_max;
     }
 
     registrarMensagem(
@@ -2801,6 +3008,7 @@ function aplicarEfeitoDoInimigo(oponente) {
 function finalizarDerrota() {
   defendendo = false;
   player.vida_atual = 0;
+  player.bencao_ativa = false;
   const itensAntes = [...player.inventario];
   player.prata = 0;
   player.ouro = 0;
@@ -2963,11 +3171,19 @@ function registrarDerrotaInimigo(alvo) {
   }
 }
 
-function causarDanoInimigo(alvo, dano, origem = "", tipoDano = "fisico") {
-  if (!alvo || alvo.vida <= 0) return;
+function causarDanoInimigo(
+  alvo,
+  dano,
+  origem = "",
+  tipoDano = "fisico",
+  ignorarResistencia = 0,
+) {
+  if (!alvo || alvo.vida <= 0) return 0;
   const propriedadeResistencia =
     tipoDano === "magico" ? "resistencia_magica" : "resistencia_fisica";
-  const resistencia = normalizarResistencia(alvo[propriedadeResistencia]);
+  const resistencia = normalizarResistencia(
+    alvo[propriedadeResistencia] * (1 - ignorarResistencia),
+  );
   const danoFinal = Math.max(0, dano * (1 - resistencia / 100));
   alvo.vida = Math.max(0, alvo.vida - danoFinal);
   const tipoFormatado = tipoDano === "magico" ? "mágico" : "físico";
@@ -2981,6 +3197,7 @@ function causarDanoInimigo(alvo, dano, origem = "", tipoDano = "fisico") {
     `${alvo.nome} recebeu ${Math.ceil(danoFinal)} de dano ${tipoFormatado}${efeitoResistencia}${origem}.`,
   );
   registrarDerrotaInimigo(alvo);
+  return danoFinal;
 }
 
 function atacarComAlmasInvocadas(alvo) {
@@ -3133,6 +3350,28 @@ function executarAcaoJogador(acao) {
     return false;
   }
 
+  if (acao === "golpe_sagrado") {
+    player.fe_atual -= classe_paladino.golpe_sagrado.fe_custo;
+    const dano = player.dmg + classe_paladino.golpe_sagrado.magic_dmg;
+    causarDanoInimigo(
+      inimigo,
+      dano,
+      " (Golpe Sagrado)",
+      "magico",
+      classe_paladino.golpe_sagrado.ignora_defesa,
+    );
+    return inimigos.every((alvo) => alvo.vida <= 0);
+  }
+
+  if (acao === "bencao") {
+    player.fe_atual -= classe_paladino.bencao.fe_custo;
+    player.bencao_ativa = true;
+    registrarMensagem(
+      "Você ativou a Bênção: seus ataques normais recuperam 25% do dano causado até o fim do combate.",
+    );
+    return false;
+  }
+
   if (acao === "atacar") {
     const danosAtaque = calcularDanoAtaque();
     const arma = obterArmaAtual();
@@ -3152,12 +3391,13 @@ function executarAcaoJogador(acao) {
       .filter((alvo) => alvo?.vida > 0);
     const alvosDoAtaque =
       alvosSelecionados.length > 0 ? alvosSelecionados : [inimigo];
+    let danoTotalCausado = 0;
     for (let tiro = 0; tiro < tiros; tiro += 1) {
       const vivos = alvosDoAtaque.filter((alvo) => alvo.vida > 0);
       if (vivos.length === 0) break;
       const alvo = vivos[tiro % vivos.length];
       for (const componente of danosAtaque) {
-        causarDanoInimigo(
+        danoTotalCausado += causarDanoInimigo(
           alvo,
           calcularDanoCritico(componente.dano),
           tiros > 1 ? " (multishot)" : "",
@@ -3169,12 +3409,22 @@ function executarAcaoJogador(acao) {
 
     if (arma?.area_dmg > 0) {
       for (const alvo of inimigos) {
-        causarDanoInimigo(
+        danoTotalCausado += causarDanoInimigo(
           alvo,
           aplicarPenalidadeArma(arma.area_dmg, arma),
           " (dano em área)",
           arma.area_dmg_tipo ?? "fisico",
         );
+      }
+    }
+    if (player.bencao_ativa && danoTotalCausado > 0) {
+      const cura = Math.min(
+        player.vida_max - player.vida_atual,
+        danoTotalCausado * classe_paladino.bencao.roubo_vida,
+      );
+      player.vida_atual += cura;
+      if (cura > 0) {
+        registrarMensagem(`A Bênção recuperou ${Math.ceil(cura)} de vida.`);
       }
     }
 
@@ -3314,6 +3564,26 @@ function jogarTurno(acao) {
     }
     if (player.almas_invocadas > 0) {
       registrarMensagem("As almas já estão ajudando neste combate.");
+      return;
+    }
+  }
+
+  if (acao === "golpe_sagrado") {
+    if (player.classe !== "paladino") return;
+    if (player.fe_atual < classe_paladino.golpe_sagrado.fe_custo) {
+      registrarMensagem("Você precisa de 40 de fé para Golpe Sagrado.");
+      return;
+    }
+  }
+
+  if (acao === "bencao") {
+    if (player.classe !== "paladino") return;
+    if (player.bencao_ativa) {
+      registrarMensagem("A Bênção já está ativa neste combate.");
+      return;
+    }
+    if (player.fe_atual < classe_paladino.bencao.fe_custo) {
+      registrarMensagem("Você precisa de 50 de fé para ativar a Bênção.");
       return;
     }
   }
@@ -3588,6 +3858,12 @@ interfaceJogo.necromancerSteal.addEventListener("click", () =>
 interfaceJogo.necromancerSummon.addEventListener("click", () =>
   jogarTurno("invocar_almas"),
 );
+interfaceJogo.paladinSkill.addEventListener("click", () =>
+  jogarTurno("golpe_sagrado"),
+);
+interfaceJogo.paladinBlessing.addEventListener("click", () =>
+  jogarTurno("bencao"),
+);
 
 // ==============================
 // PRÓXIMA BATALHA
@@ -3613,6 +3889,7 @@ function fugirDaBatalha() {
   batalhaAtiva = false;
   defendendo = false;
   player.furia_ativa = false;
+  player.bencao_ativa = false;
   player.almas_invocadas = 0;
   player.reload_turns_remaining = 0;
   player.reload_weapon_id = null;

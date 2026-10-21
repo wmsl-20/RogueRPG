@@ -100,6 +100,33 @@ Derrota instantaneamente o inimigo-alvo quando ele está abaixo de 25% da vida. 
 
 Consome 65 de mana e duas almas para invocar dois espíritos. Eles atacam os inimigos junto com o jogador até o fim do combate.
 
+### 🛡️ Paladino
+
+Guerreiro sagrado que usa fé para atacar e se recuperar durante a batalha.
+
+**Atributos iniciais**
+- Vida: 100
+- Dano base: 14
+- Resistência física: 7%
+- Resistência mágica: 0%
+- Velocidade: 8
+- Chance crítica: 8%
+- Multiplicador crítico: 2x
+- Curas básicas: 2
+- Fé: 100
+
+O Paladino começa com a Maça sagrada, que concede +5 de dano físico.
+
+**Habilidade 1: Golpe Sagrado**
+
+Consome 40 de fé e causa dano mágico com +24 de dano base. Ignora 30% da resistência mágica do alvo.
+
+**Habilidade 2: Bênção**
+
+Consome 50 de fé e ativa roubo de vida: ataques normais recuperam 25% do dano causado até o fim do combate.
+
+A fé recupera 25% do que foi gasto após uma vitória, é restaurada completamente nos acampamentos e volta ao máximo ao subir de nível. Cada nível também aumenta a fé máxima em 10.
+
 ## 3. Atributos e resistências
 
 O sistema de defesa utiliza resistências percentuais separadas:
@@ -122,6 +149,8 @@ Ao subir de nível, o personagem aumenta ambas as resistências em um ponto, al�
 ## 4. Armas, armaduras e escudos
 
 O inventário permite consultar, equipar e desequipar equipamentos.
+
+A loja compara os equipamentos oferecidos com os itens atualmente equipados e identifica se são melhores, piores ou equivalentes.
 
 ### Armas
 

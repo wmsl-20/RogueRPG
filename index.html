@@ -65,6 +65,11 @@
 			<p>Rouba almas e invoca espíritos. Resistências base: físico 0%, mágico 12%.</p>
         </button>
 
+        <button type="button" class="class-button" data-class="paladino">
+            <h2>🛡️ Paladino</h2>
+			<p>Guerreiro sagrado com fé, Golpe Sagrado e bênção de roubo de vida. Resistências base: físico 7%, mágico 0%.</p>
+        </button>
+
     </div>
 </section>
 
@@ -155,6 +160,10 @@
 					<div class="bar"><div class="bar-fill mana-fill" id="player-mana-bar"></div></div>
 					<div class="stat-note" id="player-mana-effect" hidden></div>
 				</div>
+				<div class="player-stat" id="faith-stat" hidden>
+					<div class="stat-heading"><span>FÉ</span><span id="player-faith">100 / 100</span></div>
+					<div class="bar" id="player-faith-progress" role="progressbar" aria-label="Fé do jogador" aria-valuemin="0" aria-valuemax="100"><div class="bar-fill faith-fill" id="player-faith-bar"></div></div>
+				</div>
 				<div class="stat-note player-debuffs" id="player-debuffs" hidden></div>
 				<div class="stat-note player-resistances" id="player-resistances"></div>
 			</div>
@@ -174,6 +183,8 @@
 			<button class="action secondary" id="mage-skill-button" type="button" hidden>Explosão Arcana</button>
 			<button class="action secondary" id="necromancer-steal-button" type="button" hidden>Roubar alma</button>
 			<button class="action secondary" id="necromancer-summon-button" type="button" hidden>Invocar almas</button>
+			<button class="action secondary" id="paladin-skill-button" type="button" hidden>Golpe Sagrado</button>
+			<button class="action secondary" id="paladin-blessing-button" type="button" hidden>Bênção</button>
 			<button class="action utility" id="inventory-button" type="button" aria-haspopup="dialog" aria-controls="inventory-modal">🎒 &nbsp; Inventário</button>
 			<button class="action utility" id="log-button" type="button" aria-haspopup="dialog" aria-controls="log-modal">📜 &nbsp; Registro</button>
 			<button class="action primary" id="continue-button" type="button" hidden>Próxima batalha &nbsp; →</button>
