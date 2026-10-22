@@ -203,6 +203,7 @@ main { height: 100%; }
 :root[data-device] .enemy-vitality { width: min(460px, 82%); }
 :root[data-device] .enemy-vitality .health-copy { font-size: clamp(12px, 4cqh, 18px); margin-bottom: 6px; }
 .enemy-vitality .bar { height: 14px; }
+:root[data-device] .enemy-party { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 :root[data-device="mobile"] .actions .action { font-size: 18px; }
 :root[data-device="mobile"] .message { font-size: 16px; }
 /* Reserve room for the name and vitality on short arenas. */
@@ -237,6 +238,29 @@ main { height: 100%; }
 :root[data-device="mobile"][data-orientation="portrait"] .enemy-vitality .bar { height: 11px; }
 :root[data-device="mobile"][data-orientation="portrait"] .creature {
     font-size: clamp(24px, min(44cqh, calc((100cqh - 90px) / 1.2)), 180px);
+}
+
+/* Two party cards must fit inside the arena instead of being clipped vertically. */
+@media (max-width: 767px) {
+    .enemy-party { gap: 4px; margin-top: 2px; }
+    .enemy-party-card {
+        min-width: 0;
+        min-height: 0;
+        grid-template-rows: minmax(40px, auto) auto auto 5px auto;
+        gap: 4px;
+        padding: 6px;
+    }
+    .enemy-party-card .enemy-party-art { min-height: 40px; font-size: clamp(36px, 10vw, 64px); }
+    .enemy-party-card strong { font-size: clamp(10px, 2.5vw, 14px); overflow-wrap: anywhere; }
+    .enemy-party-card > span:not(.enemy-party-health):not(.enemy-party-art) {
+        font-size: clamp(9px, 2vw, 11px);
+    }
+    .enemy-party-card .enemy-resistance-copy {
+        display: -webkit-box;
+        overflow: hidden;
+        -webkit-box-orient: vertical;
+        -webkit-line-clamp: 2;
+    }
 }
 
 /* Route selection fills the available screen; the shop keeps its own layout. */

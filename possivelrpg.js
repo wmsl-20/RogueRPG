@@ -28,9 +28,9 @@ const classe_guerreiro = {
   run_drop_ids: [],
   furia_ativa: false,
   furia_buffs: {
-    dmg: (dmg) => dmg * 2,
+    dmg: (dmg) => dmg * 3,
     resistance: (resistance) => (resistance > 0 ? resistance / 2 : resistance),
-    speed: (speed) => speed * 2,
+    speed: (speed) => speed * 3,
     critico_chance: (chance) => chance * 2,
   },
 };
@@ -168,7 +168,7 @@ const classe_paladino = {
   bencao_ativa: false,
   bencao: {
     fe_custo: 50,
-    roubo_vida: 0.4, // cura 40% do dano causado em ataques normais enquanto ativa
+    roubo_vida: 0.6, // cura 60% do dano causado em ataques normais enquanto ativa
   },
 };
 
@@ -1410,7 +1410,10 @@ function mostrarRotas() {
       botao.dataset.holdConfirm = "true";
       let pointerHoldId = null;
       const cancelarPressao = () => {
-        if (botao._holdConfirmTimer !== null && botao._holdConfirmTimer !== undefined) {
+        if (
+          botao._holdConfirmTimer !== null &&
+          botao._holdConfirmTimer !== undefined
+        ) {
           window.clearTimeout(botao._holdConfirmTimer);
           botao._holdConfirmTimer = null;
         }
@@ -2524,7 +2527,8 @@ function atualizarTela() {
     ? Number(player.experiencia)
     : 0;
   const xpNecessario = xpParaProximoNivel();
-  const percentualXp = xpNecessario > 0 ? Math.min(100, (xpAtual / xpNecessario) * 100) : 0;
+  const percentualXp =
+    xpNecessario > 0 ? Math.min(100, (xpAtual / xpNecessario) * 100) : 0;
 
   interfaceJogo.playerXp.textContent = `${xpAtual} / ${xpNecessario}`;
 
@@ -2663,87 +2667,92 @@ function atualizarTela() {
     if (precisaCriarCards) {
       interfaceJogo.enemyParty.replaceChildren();
       for (const inimigoDoGrupo of inimigos) {
-      const card = document.createElement("button");
-      card.type = "button";
-      card.className = "enemy-party-card";
-      card.dataset.enemyId = inimigoDoGrupo.id;
-      card.classList.toggle("is-target", inimigoDoGrupo === inimigo);
-      card.setAttribute("aria-pressed", String(inimigoDoGrupo === inimigo));
-      card.classList.toggle("is-defeated", inimigoDoGrupo.vida <= 0);
-      const alvoMultishotSelecionado = alvosMultishotSelecionados.has(
-        inimigoDoGrupo.id,
-      );
-      if (armaMultishot > 0) {
-        card.classList.toggle("is-multishot-target", alvoMultishotSelecionado);
-        card.setAttribute("aria-pressed", String(alvoMultishotSelecionado));
-      }
-      card.disabled = inimigoDoGrupo.vida <= 0 || !batalhaAtiva;
-      card.addEventListener("click", () => {
-        const armaMultishot = obterArmaAtual()?.multi_shot ?? 0;
+        const card = document.createElement("button");
+        card.type = "button";
+        card.className = "enemy-party-card";
+        card.dataset.enemyId = inimigoDoGrupo.id;
+        card.classList.toggle("is-target", inimigoDoGrupo === inimigo);
+        card.setAttribute("aria-pressed", String(inimigoDoGrupo === inimigo));
+        card.classList.toggle("is-defeated", inimigoDoGrupo.vida <= 0);
+        const alvoMultishotSelecionado = alvosMultishotSelecionados.has(
+          inimigoDoGrupo.id,
+        );
         if (armaMultishot > 0) {
-          if (alvosMultishotSelecionados.has(inimigoDoGrupo.id)) {
-            alvosMultishotSelecionados.delete(inimigoDoGrupo.id);
-            inimigo =
-              inimigos.find(
-                (alvo) =>
-                  alvo.vida > 0 && alvosMultishotSelecionados.has(alvo.id),
-              ) ?? inimigoDoGrupo;
-          } else {
-            const maximoAlvos = 1 + armaMultishot;
-            if (alvosMultishotSelecionados.size >= maximoAlvos) {
-              interfaceJogo.message.textContent = `Esta arma permite selecionar até ${maximoAlvos} alvos por ataque.`;
-              return;
+          card.classList.toggle(
+            "is-multishot-target",
+            alvoMultishotSelecionado,
+          );
+          card.setAttribute("aria-pressed", String(alvoMultishotSelecionado));
+        }
+        card.disabled = inimigoDoGrupo.vida <= 0 || !batalhaAtiva;
+        card.addEventListener("click", () => {
+          const armaMultishot = obterArmaAtual()?.multi_shot ?? 0;
+          if (armaMultishot > 0) {
+            if (alvosMultishotSelecionados.has(inimigoDoGrupo.id)) {
+              alvosMultishotSelecionados.delete(inimigoDoGrupo.id);
+              inimigo =
+                inimigos.find(
+                  (alvo) =>
+                    alvo.vida > 0 && alvosMultishotSelecionados.has(alvo.id),
+                ) ?? inimigoDoGrupo;
+            } else {
+              const maximoAlvos = 1 + armaMultishot;
+              if (alvosMultishotSelecionados.size >= maximoAlvos) {
+                interfaceJogo.message.textContent = `Esta arma permite selecionar até ${maximoAlvos} alvos por ataque.`;
+                return;
+              }
+              alvosMultishotSelecionados.add(inimigoDoGrupo.id);
+              inimigo = inimigoDoGrupo;
             }
-            alvosMultishotSelecionados.add(inimigoDoGrupo.id);
+          } else {
             inimigo = inimigoDoGrupo;
           }
-        } else {
-          inimigo = inimigoDoGrupo;
-        }
-        for (const cartao of interfaceJogo.enemyParty.querySelectorAll("[data-enemy-id]")) {
-          const selecionado = cartao.dataset.enemyId === inimigo.id;
-          const selecionadoMultishot = alvosMultishotSelecionados.has(
-            cartao.dataset.enemyId,
-          );
-          cartao.classList.toggle("is-target", selecionado);
-          cartao.classList.toggle(
-            "is-multishot-target",
-            armaMultishot > 0 && selecionadoMultishot,
-          );
-          cartao.setAttribute(
-            "aria-pressed",
-            String(armaMultishot > 0 ? selecionadoMultishot : selecionado),
-          );
-        }
-        salvarJogo();
-      });
-      const arte = document.createElement("span");
-      arte.className = "enemy-party-art";
-      arte.textContent = obterSpriteInimigo(inimigoDoGrupo);
-      arte.setAttribute("aria-hidden", "true");
-      const nome = document.createElement("strong");
-      nome.textContent = inimigoDoGrupo.nome;
-      const vida = document.createElement("span");
-      vida.dataset.enemyHealth = "true";
-      vida.textContent =
-        inimigoDoGrupo.vida <= 0
-          ? "Derrotado"
-          : `${Math.ceil(inimigoDoGrupo.vida)} / ${inimigoDoGrupo.vida_max} HP`;
-      const barra = document.createElement("span");
-      barra.className = "enemy-party-health";
-      const preenchimento = document.createElement("span");
-      preenchimento.style.width = `${Math.max(
-        0,
-        (inimigoDoGrupo.vida / inimigoDoGrupo.vida_max) * 100,
-      )}%`;
-      barra.append(preenchimento);
-      const resistencias = document.createElement("span");
-      resistencias.className = "enemy-resistance-copy";
-      resistencias.textContent = descreverResistencias(inimigoDoGrupo);
-      resistencias.title =
-        "Resistência reduz o dano; vulnerabilidade aumenta o dano recebido.";
-      card.append(arte, nome, vida, barra, resistencias);
-      interfaceJogo.enemyParty.append(card);
+          for (const cartao of interfaceJogo.enemyParty.querySelectorAll(
+            "[data-enemy-id]",
+          )) {
+            const selecionado = cartao.dataset.enemyId === inimigo.id;
+            const selecionadoMultishot = alvosMultishotSelecionados.has(
+              cartao.dataset.enemyId,
+            );
+            cartao.classList.toggle("is-target", selecionado);
+            cartao.classList.toggle(
+              "is-multishot-target",
+              armaMultishot > 0 && selecionadoMultishot,
+            );
+            cartao.setAttribute(
+              "aria-pressed",
+              String(armaMultishot > 0 ? selecionadoMultishot : selecionado),
+            );
+          }
+          salvarJogo();
+        });
+        const arte = document.createElement("span");
+        arte.className = "enemy-party-art";
+        arte.textContent = obterSpriteInimigo(inimigoDoGrupo);
+        arte.setAttribute("aria-hidden", "true");
+        const nome = document.createElement("strong");
+        nome.textContent = inimigoDoGrupo.nome;
+        const vida = document.createElement("span");
+        vida.dataset.enemyHealth = "true";
+        vida.textContent =
+          inimigoDoGrupo.vida <= 0
+            ? "Derrotado"
+            : `${Math.ceil(inimigoDoGrupo.vida)} / ${inimigoDoGrupo.vida_max} HP`;
+        const barra = document.createElement("span");
+        barra.className = "enemy-party-health";
+        const preenchimento = document.createElement("span");
+        preenchimento.style.width = `${Math.max(
+          0,
+          (inimigoDoGrupo.vida / inimigoDoGrupo.vida_max) * 100,
+        )}%`;
+        barra.append(preenchimento);
+        const resistencias = document.createElement("span");
+        resistencias.className = "enemy-resistance-copy";
+        resistencias.textContent = descreverResistencias(inimigoDoGrupo);
+        resistencias.title =
+          "Resistência reduz o dano; vulnerabilidade aumenta o dano recebido.";
+        card.append(arte, nome, vida, barra, resistencias);
+        interfaceJogo.enemyParty.append(card);
       }
     }
 
@@ -2762,15 +2771,18 @@ function atualizarTela() {
       card.disabled = derrotado || !batalhaAtiva;
       card.setAttribute(
         "aria-pressed",
-        String(armaMultishot > 0 ? selecionadoMultishot : inimigoDoGrupo === inimigo),
+        String(
+          armaMultishot > 0 ? selecionadoMultishot : inimigoDoGrupo === inimigo,
+        ),
       );
       card.querySelector("[data-enemy-health]").textContent = derrotado
         ? "Derrotado"
         : `${Math.ceil(inimigoDoGrupo.vida)} / ${inimigoDoGrupo.vida_max} HP`;
-      card.querySelector(".enemy-party-health > span").style.width = `${Math.max(
-        0,
-        (inimigoDoGrupo.vida / inimigoDoGrupo.vida_max) * 100,
-      )}%`;
+      card.querySelector(".enemy-party-health > span").style.width =
+        `${Math.max(
+          0,
+          (inimigoDoGrupo.vida / inimigoDoGrupo.vida_max) * 100,
+        )}%`;
     }
   } else if (inimigo) {
     interfaceJogo.enemyName.textContent = inimigo.nome;
@@ -3109,7 +3121,9 @@ function concluirVitoria() {
   const duracaoTransicao = 1200;
   const conteudoJogo = document.querySelector("#game-content");
   const botoesDuranteTransicao = [...conteudoJogo.querySelectorAll("button")];
-  const estadosDosBotoes = botoesDuranteTransicao.map((botao) => botao.disabled);
+  const estadosDosBotoes = botoesDuranteTransicao.map(
+    (botao) => botao.disabled,
+  );
   conteudoJogo.classList.add("is-finalizing-battle");
   botoesDuranteTransicao.forEach((botao) => {
     botao.disabled = true;
@@ -3198,10 +3212,24 @@ function aplicarEfeitoDoInimigo(oponente) {
     // Temporary debug mode: every enemy attack applies a random effect.
     const efeitosDeTeste = [
       () => aplicarDebuffJogador("pegajoso", "Pegajoso", 2, 0, 0.75),
-      () => aplicarDebuffJogador("veneno", "Veneno", 3, player.vida_max * 0.025),
+      () =>
+        aplicarDebuffJogador("veneno", "Veneno", 3, player.vida_max * 0.025),
       () => aplicarDebuffJogador("lentidao", "LentidÃ£o", 2, 0, 0.75),
-      () => aplicarDebuffJogador("sangramento", "Sangramento", 3, player.vida_max * 0.02, 0.85),
-      () => aplicarDebuffJogador("queimando", "Queimando", 3, player.vida_max * 0.025),
+      () =>
+        aplicarDebuffJogador(
+          "sangramento",
+          "Sangramento",
+          3,
+          player.vida_max * 0.02,
+          0.85,
+        ),
+      () =>
+        aplicarDebuffJogador(
+          "queimando",
+          "Queimando",
+          3,
+          player.vida_max * 0.025,
+        ),
     ];
     efeitosDeTeste[Math.floor(Math.random() * efeitosDeTeste.length)]();
     atualizarTela();
