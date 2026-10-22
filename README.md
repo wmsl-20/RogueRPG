@@ -2,7 +2,7 @@
 
 Um RPG de navegador com elementos roguelite, desenvolvido em JavaScript.
 
-**Versão:** 2.3.5
+**Versão:** 2.4.1
 
 **Jogar:** https://wmsl-20.github.io/RogueRPG/
 
@@ -25,10 +25,10 @@ Cada classe possui atributos, resistências e habilidades próprias.
 Especialista em sobrevivência e combate físico.
 
 **Atributos iniciais**
-- Vida: 120
-- Dano base: 18
-- Resistência física: 10%
-- Resistência mágica: 0%
+- Vida: 130
+- Dano base: 24
+- Resistência física: 20%
+- Resistência mágica: 10%
 - Velocidade: 10
 - Chance crítica: 5%
 - Multiplicador crítico: 2x
@@ -36,7 +36,7 @@ Especialista em sobrevivência e combate físico.
 
 **Habilidade: Fúria**
 
-Dobra o dano, a velocidade e a chance crítica enquanto reduz pela metade as resistências positivas. A habilidade dura até o fim do combate e pode ser ativada quando a vida está em 10% ou menos, com o limite aumentando conforme o nível.
+Triplica o dano e a velocidade, além de dobrar a chance de acerto crítico. Em contrapartida, reduz pela metade as resistências positivas. A habilidade dura até o fim do combate e pode ser ativada quando a vida está em 10% ou menos, com o limite aumentando conforme o nível.
 
 ### 🏹 Arqueiro
 
@@ -81,10 +81,10 @@ Consome 60 de mana e causa dano mágico crítico a todos os inimigos vivos. A ha
 Especialista em dano mágico, execução de inimigos enfraquecidos e invocação de espíritos.
 
 **Atributos iniciais**
-- Vida: 75
+- Vida: 90
 - Mana: 100
-- Dano base: 35
-- Resistência física: 0%
+- Dano base: 30
+- Resistência física: 5%
 - Resistência mágica: 12%
 - Velocidade: 8
 - Chance crítica: 10%
@@ -102,28 +102,28 @@ Consome 65 de mana e duas almas para invocar dois espíritos. Eles atacam os ini
 
 ### 🛡️ Paladino
 
-Guerreiro sagrado que usa fé para atacar e se recuperar durante a batalha.
+Guerreiro sagrado que utiliza fé para atacar e recuperar vida durante a batalha.
 
 **Atributos iniciais**
 - Vida: 100
-- Dano base: 14
-- Resistência física: 7%
-- Resistência mágica: 0%
+- Dano base: 20
+- Resistência física: 8%
+- Resistência mágica: 8%
 - Velocidade: 8
 - Chance crítica: 8%
 - Multiplicador crítico: 2x
 - Curas básicas: 2
 - Fé: 100
 
-O Paladino começa com a Maça sagrada, que concede +5 de dano físico.
+O Paladino começa com a Maça Sagrada, que concede +5 de dano físico.
 
 **Habilidade 1: Golpe Sagrado**
 
-Consome 40 de fé e causa dano mágico com +24 de dano base. Ignora 30% da resistência mágica do alvo.
+Consome 40 de fé e causa dano mágico com 30 de dano base. Ignora 30% da resistência mágica do alvo.
 
 **Habilidade 2: Bênção**
 
-Consome 50 de fé e ativa roubo de vida: ataques normais recuperam 25% do dano causado até o fim do combate.
+Consome 50 de fé e ativa roubo de vida: ataques normais recuperam 60% do dano causado até o fim do combate.
 
 A fé recupera 25% do que foi gasto após uma vitória, é restaurada completamente nos acampamentos e volta ao máximo ao subir de nível. Cada nível também aumenta a fé máxima em 10.
 
@@ -200,7 +200,7 @@ Recupera até 70% da mana máxima. Em contrapartida, reduz o dano mágico em 30%
 
 ### Habilidades especiais
 
-As habilidades variam conforme a classe e podem consumir mana, utilizar recargas ou depender de condições específicas.
+As habilidades variam conforme a classe e podem consumir mana ou fé, utilizar recargas ou depender de condições específicas.
 
 ### Fugir
 
@@ -214,9 +214,9 @@ Alguns exemplos:
 - **Slime:** vulnerável a dano mágico.
 - **Zumbi:** possui resistência física.
 - **Esqueleto:** vulnerável a dano físico e resistente a dano mágico.
-- **Orc:** possui resistência física elevada.
+- **Orc:** aparece entre os encontros de elite.
 - **Mago Inimigo:** utiliza dano mágico.
-- **Troll:** possui resistências físicas e mágicas.
+- **Troll:** aparece entre os encontros de elite.
 
 Os inimigos também podem aplicar efeitos negativos:
 
