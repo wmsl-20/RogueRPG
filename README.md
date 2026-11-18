@@ -2,7 +2,7 @@
 
 Um RPG de navegador com elementos roguelite, desenvolvido em JavaScript.
 
-**Versão:** 2.4.1
+**Versão:** 2.4.2
 
 **Jogar:** https://wmsl-20.github.io/RogueRPG/
 
